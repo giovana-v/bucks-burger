@@ -264,6 +264,46 @@ teste('sem configuração de horário, não afirma que está aberto', () => {
   igual(r.configuracaoIncompleta, true);
 });
 
+
+/* ============================================================ */
+grupo('HORÁRIOS AGRUPADOS (rodapé)');
+
+teste('agrupa dias consecutivos com o mesmo horário', () => {
+  const g = Loja.agruparHorarios(BUSINESS_CONFIG.businessHours);
+  igual(g.length, 2, 'sete dias devem virar duas linhas');
+  igual(g[0], { rotulo: 'Segunda', texto: 'Fechado', fechado: true });
+  igual(g[1].rotulo, 'Terça a Domingo');
+  contem(g[1].texto, 'a partir das 18:00');
+});
+
+teste('dois dias seguidos usam "e", tres ou mais usam "a"', () => {
+  const g = Loja.agruparHorarios({
+    monday: null,
+    tuesday:   { open: '18:00', close: '23:00' },
+    wednesday: { open: '18:00', close: '23:00' },
+    thursday:  { open: '18:00', close: '23:00' },
+    friday:    { open: '18:00', close: '00:00' },
+    saturday:  { open: '18:00', close: '00:00' },
+    sunday:    { open: '18:00', close: '22:00' }
+  });
+  igual(g.map(x => x.rotulo),
+        ['Segunda', 'Terça a Quinta', 'Sexta e Sábado', 'Domingo']);
+  igual(g[1].texto, '18:00 às 23:00');
+});
+
+teste('nao inventa fechamento quando close e null', () => {
+  const g = Loja.agruparHorarios({ monday: { open: '18:00', close: null } });
+  contem(g[0].texto, 'a partir das');
+  naoContem(g[0].texto, 'às');
+});
+
+teste('sem configuracao, todos os dias saem como fechado', () => {
+  const g = Loja.agruparHorarios(null);
+  igual(g.length, 1);
+  igual(g[0].rotulo, 'Segunda a Domingo');
+  igual(g[0].fechado, true);
+});
+
 /* ============================================================ */
 grupo('ALÉRGENOS — compatibilidade com dados antigos');
 

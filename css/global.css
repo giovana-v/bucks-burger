@@ -30,6 +30,7 @@
 
   /* Layout */
   --container:    1200px;
+  --gutter:       24px;   /* recuo lateral do .container e do trilho social */
   --radius:       10px;
   --radius-sm:    6px;
   --header-h:     84px;
@@ -78,7 +79,7 @@ p { margin: 0 0 1rem; }
   width: 100%;
   max-width: var(--container);
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: var(--gutter);
 }
 
 .secao { padding: 96px 0; position: relative; }

@@ -328,6 +328,47 @@ const Loja = (() => {
     return null;
   }
 
+  /**
+   * Agrupa dias consecutivos com o mesmo horário, como na referência:
+   * em vez de sete linhas, sai "Segunda: Fechado" + "Terça a Domingo: ...".
+   * @returns {Array<{rotulo: string, texto: string, fechado: boolean}>}
+   */
+  const ORDEM_SEMANA = [
+    ['monday', 'Segunda'], ['tuesday', 'Terça'], ['wednesday', 'Quarta'],
+    ['thursday', 'Quinta'], ['friday', 'Sexta'], ['saturday', 'Sábado'],
+    ['sunday', 'Domingo']
+  ];
+
+  function textoDoDia(dia) {
+    if (!dia || !dia.open) return 'Fechado';
+    // Fechamento não confirmado: não inventamos um horário de encerramento
+    return dia.close ? `${dia.open} às ${dia.close}` : `a partir das ${dia.open}`;
+  }
+
+  function agruparHorarios(businessHours) {
+    const h = businessHours || {};
+    const grupos = [];
+
+    ORDEM_SEMANA.forEach(([chave, rotulo]) => {
+      const texto = textoDoDia(h[chave]);
+      const ultimo = grupos[grupos.length - 1];
+
+      if (ultimo && ultimo.texto === texto) {
+        ultimo.dias.push(rotulo);
+      } else {
+        grupos.push({ dias: [rotulo], texto });
+      }
+    });
+
+    return grupos.map(g => ({
+      rotulo: g.dias.length === 1 ? g.dias[0]
+            : g.dias.length === 2 ? `${g.dias[0]} e ${g.dias[1]}`
+            : `${g.dias[0]} a ${g.dias[g.dias.length - 1]}`,
+      texto: g.texto,
+      fechado: g.texto === 'Fechado'
+    }));
+  }
+
   /* ================= ALÉRGENOS ================= */
 
   /**
@@ -532,7 +573,7 @@ const Loja = (() => {
     chaveItem, normalizarObs, LIMITE_OBS,
     precoUnitario, precoItem, calcularSubtotal,
     calcularTaxaEntrega, distanciaEntre, calcularTotais,
-    estaAberto, momentoNoFuso, emMinutos,
+    estaAberto, momentoNoFuso, emMinutos, agruparHorarios,
     lerAlergenos, validarCheckout, PAGAMENTOS,
     montarMensagem, montarUrlWhatsapp,
     formatarTelefone, enderecoFormatado

@@ -125,12 +125,6 @@ function iniciarCarrossel() {
    DADOS COMERCIAIS — tudo vem de BUSINESS_CONFIG
    ============================================================ */
 
-const DIAS_ORDEM = [
-  ['tuesday', 'Terça'], ['wednesday', 'Quarta'], ['thursday', 'Quinta'],
-  ['friday', 'Sexta'], ['saturday', 'Sábado'], ['sunday', 'Domingo'],
-  ['monday', 'Segunda']
-];
-
 /** Situação da loja (aberto/fechado), onde houver [data-status-loja]. */
 function renderizarStatusLoja() {
   const alvos = document.querySelectorAll('[data-status-loja]');
@@ -161,34 +155,26 @@ function renderizarStatusLoja() {
   });
 }
 
-/** Lista de horários. Fechamento não confirmado vira "a partir de". */
+/** Lista de horários, com dias consecutivos agrupados (ver Loja.agruparHorarios). */
 function renderizarHorarios() {
   const alvos = document.querySelectorAll('[data-horarios]');
   if (!alvos.length) return;
 
-  const h = BUSINESS_CONFIG.businessHours || {};
+  const grupos = Loja.agruparHorarios(BUSINESS_CONFIG.businessHours);
 
   alvos.forEach(alvo => {
     alvo.textContent = '';
 
-    DIAS_ORDEM.forEach(([chave, rotulo]) => {
-      const dia = h[chave];
+    grupos.forEach(g => {
       const linha = document.createElement('p');
       linha.className = 'horario-linha';
+      if (g.fechado) linha.classList.add('horario-linha--fechado');
 
       const nome = document.createElement('strong');
-      nome.textContent = `${rotulo}:`;
+      nome.textContent = `${g.rotulo}:`;
 
       const valor = document.createElement('span');
-      if (!dia) {
-        valor.textContent = 'Fechado';
-        linha.classList.add('horario-linha--fechado');
-      } else if (!dia.close) {
-        // Não inventamos horário de encerramento
-        valor.textContent = `a partir das ${dia.open}`;
-      } else {
-        valor.textContent = `${dia.open} às ${dia.close}`;
-      }
+      valor.textContent = g.texto;
 
       linha.append(nome, valor);
       alvo.appendChild(linha);

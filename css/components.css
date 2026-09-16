@@ -1010,14 +1010,19 @@
 /* ---------- Trilho social lateral ---------- */
 .social-rail {
   position: absolute;
-  left: 22px; bottom: 70px;
+  /* Mesma conta do .container, para os ícones nascerem na mesma
+     vertical do texto do hero em vez de num recuo fixo. */
+  left: max(var(--gutter), calc(50% - (var(--container) / 2) + var(--gutter)));
+  bottom: 70px;
   z-index: 5;
   display: grid;
+  justify-items: start;
   gap: 16px;
 }
 .social-rail a {
-  width: 34px; height: 34px;
-  display: grid; place-items: center;
+  width: 26px; height: 26px;
+  /* alinhado à esquerda: o glifo encosta na mesma linha do texto */
+  display: flex; align-items: center; justify-content: flex-start;
   color: var(--branco);
   opacity: .8;
   transition: var(--transicao);
@@ -1321,13 +1326,13 @@
 
 .horarios-grade {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 56px;
   align-items: start;
 }
 .horarios-cols {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 40px;
 }
 .bloco-info h4 {
@@ -1349,7 +1354,8 @@
 
 .mapas {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* auto-fit: funciona com uma unidade só ou com várias */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 18px;
 }
 .mapa-card { display: grid; gap: 10px; }
@@ -1455,21 +1461,39 @@
 .vantagem p { font-size: .82rem; color: var(--texto-suave); margin: 0; }
 
 /* ---------- RODAPÉ (v2) ---------- */
-.footer-v2 { background: var(--preto-2); padding: 64px 0 0; }
+.footer-v2 { background: var(--preto-2); padding: 56px 0 0; }
 .footer-v2__grade {
   display: grid;
-  grid-template-columns: 1.3fr .6fr 1.1fr;
-  gap: 44px;
-  padding-bottom: 48px;
+  /* auto-fit: se um bloco estiver oculto (endereço não confirmado),
+     os outros ocupam o espaço em vez de deixar metade vazia. */
+  grid-template-columns: minmax(280px, 1.5fr) minmax(130px, .55fr) minmax(240px, 1.1fr);
+  gap: 40px;
+  padding-bottom: 40px;
+  align-items: start;
 }
+/* "Contato" com o risco vermelho embaixo, como na referência */
 .footer-v2__titulo {
+  position: relative;
   font-family: var(--fonte-script);
-  font-size: 2rem;
+  font-size: 2.1rem;
   color: var(--dourado);
   text-transform: none;
-  margin-bottom: 26px;
+  margin: 0 0 8px;
+  padding-bottom: 12px;
 }
-.footer-v2__contatos { display: flex; flex-wrap: wrap; gap: 24px 34px; }
+.footer-v2__titulo::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--vermelho);
+}
+.footer-v2__contatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 34px;
+  padding-top: 20px;
+}
 .footer-v2__contato {
   display: flex;
   align-items: center;
@@ -1481,28 +1505,34 @@
 .footer-v2__contato:hover { color: var(--branco); }
 
 .footer-v2__links {
-  padding-left: 26px;
+  padding-left: 22px;
   border-left: 2px solid var(--vermelho);
 }
-.footer-v2__links li { margin-bottom: 12px; }
+.footer-v2__links li { margin-bottom: 9px; }
+.footer-v2__links li:last-child { margin-bottom: 0; }
 .footer-v2__links a { font-size: .85rem; color: var(--texto-suave); }
 .footer-v2__links a:hover { color: var(--dourado); }
 
 .footer-v2__info {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 28px;
-  padding-left: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 26px;
+  padding-left: 22px;
   border-left: 2px solid var(--vermelho);
 }
 
 .footer-v2__base {
+  padding: 14px 0;
+  background: var(--vermelho);
+}
+/* O flex precisa estar no container interno: a faixa vermelha é
+   full-bleed, mas o conteúdo segue a largura do .container. */
+.footer-v2__base-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0;
-  background: var(--vermelho);
+  flex-wrap: wrap;
 }
 .footer-v2__base p { margin: 0; font-size: .74rem; color: rgba(255,255,255,.9); }
 .footer-v2__base .logo__nome { font-size: 1rem; }
@@ -1640,14 +1670,12 @@ body.modal-aberto { overflow: hidden; }
 
 /* ---------- Horários e blocos de informação ---------- */
 .horario-linha {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 0 0 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(255,255,255,.1);
+  margin: 0 0 10px;
   font-size: .84rem;
+  line-height: 1.45;
 }
+.horario-linha strong { display: block; }
+.horario-linha span { display: block; }
 .horario-linha strong { color: var(--branco); font-weight: 700; }
 .horario-linha span { color: var(--dourado); }
 .horario-linha--fechado span { color: var(--texto-fraco); }
