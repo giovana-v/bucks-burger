@@ -48,6 +48,10 @@ const Cardapio = (() => {
   /* ---------- Alérgenos (fonte única: Loja.lerAlergenos) ---------- */
   function htmlAlergenos(produto, compacto = false) {
     const a = Loja.lerAlergenos(produto);
+
+    // Produto sem alérgenos cadastrados não gera bloco nenhum.
+    if (!a.informado) return '';
+
     const classe = a.informado
       ? (a.lista.length ? 'alergenos--contem' : 'alergenos--limpo')
       : 'alergenos--desconhecido';
@@ -263,10 +267,11 @@ const Cardapio = (() => {
           </div>
         </div>
 
+        ${Loja.lerAlergenos(p).informado ? `
         <div class="produto__bloco">
           <h3>Alérgenos</h3>
           ${htmlAlergenos(p)}
-        </div>
+        </div>` : ''}
 
         <div class="produto__bloco">
           <h3>Turbine seu pedido</h3>

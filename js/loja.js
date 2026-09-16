@@ -405,8 +405,11 @@ const Loja = (() => {
       lista,
       contaminacaoCruzada: p.avisoContaminacaoCruzada === true,
       // Texto único, usado por card, modal e página de produto.
+      // Sem cadastro, não exibimos nada. Continua valendo que ausência
+      // de dado NÃO é o mesmo que "livre de": o site simplesmente cala,
+      // em vez de afirmar qualquer coisa.
       texto: !temCampo || !Array.isArray(p.alergenos)
-        ? 'Alérgenos não informados — consulte a equipe'
+        ? ''
         : (lista.length ? `Contém: ${lista.join(', ')}` : 'Nenhum alérgeno cadastrado para este item')
     };
   }

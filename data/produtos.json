@@ -1,6 +1,6 @@
 {
   "_alergenos": {
-    "_leiaMe": "Campos de alérgenos por produto. AMBOS SÃO OPCIONAIS: produtos sem eles continuam funcionando e o site exibe 'Alérgenos não informados — consulte a equipe'. O site NUNCA afirma que um produto é livre de algo que não foi cadastrado aqui.",
+    "_leiaMe": "Campos de alérgenos por produto. AMBOS SÃO OPCIONAIS: produtos sem eles continuam funcionando e o site simplesmente não exibe nada sobre alérgenos. Preenchidos, o site passa a mostrar 'Contém: ...' no card, no modal e na página do produto. O site NUNCA afirma que um produto é livre de algo que não foi cadastrado aqui.",
     "_comoPreencher": {
       "alergenos": "Lista de textos. Use os termos de _vocabulario. Lista vazia [] significa 'conferido, nenhum alérgeno'. Ausente/null significa 'ainda não conferido'.",
       "avisoContaminacaoCruzada": "true quando o item é preparado em superfície/fritadeira compartilhada. Exibe 'Consulte a equipe sobre contaminação cruzada'."

@@ -179,10 +179,12 @@ Em `data/produtos.json`, cada produto aceita dois campos **opcionais**:
 }
 ```
 
-- Campo **ausente** = não conferido → o site mostra
-  "Alérgenos não informados — consulte a equipe".
+- Campo **ausente** = não conferido → o site **não exibe nada** sobre
+  alérgenos naquele produto (nem no card, nem no modal, nem na página).
 - Lista **vazia** `[]` = conferido, nenhum alérgeno.
-- O site **nunca** afirma que um produto é livre de algo sem o cadastro.
+- O site **nunca** afirma que um produto é livre de algo sem o cadastro:
+sem dado, ele simplesmente cala. Quem tem restrição usa o campo de
+observação, que acompanha o item até a mensagem do WhatsApp.
 
 O vocabulário sugerido e um exemplo da estrutura estão no bloco
 `_alergenos` no topo do próprio `produtos.json`. Hoje **nenhum produto tem

@@ -1490,7 +1490,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .alergenos--contem .alergenos__icone { color: var(--dourado); }
 .alergenos--limpo .alergenos__icone { color: #7FD17F; }
-.alergenos--desconhecido .alergenos__icone { color: var(--texto-fraco); }
 .alergenos__cruzada {
   display: flex;
   align-items: flex-start;

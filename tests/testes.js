@@ -302,11 +302,11 @@ teste('sem configuracao, todos os dias saem como fechado', () => {
 /* ============================================================ */
 grupo('ALÉRGENOS — compatibilidade com dados antigos');
 
-teste('produto SEM o campo não é tratado como livre de alérgenos', () => {
+teste('produto SEM o campo não exibe nada, e não é tratado como livre', () => {
   const a = Loja.lerAlergenos({ id: 1, nome: 'Burger antigo' });
   igual(a.informado, false);
   igual(a.lista, []);
-  contem(a.texto, 'não informados');
+  igual(a.texto, '', 'sem cadastro o site não escreve nada sobre alérgenos');
   naoContem(a.texto, 'livre');
   naoContem(a.texto, 'Nenhum alérgeno');
 });
