@@ -42,7 +42,7 @@
 <!-- Fontes: preconnect + link no head carrega antes do CSS terminar -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
 
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/components.css">
@@ -98,15 +98,15 @@
        fetchpriority="high" decoding="async">
   <div class="hero-v2__veu" aria-hidden="true"></div>
 
-  <p class="fita"><span>nova receita</span></p>
+  <p class="fita"><span>FEITO NA HORA</span></p>
   <div class="fita__lista">
-    <span>+ sabor</span>
-    <span>+ cebola caramelizada</span>
-    <span>+ queijo</span>
+    <span>pão com gergelim</span>
+    <span>carne artesanal</span>
+    <span>queijo derretido</span>
   </div>
 
-  <span class="hero-v2__nota hero-v2__nota--1">and cheese</span>
-  <span class="hero-v2__nota hero-v2__nota--2">caramelized onion</span>
+  <span class="hero-v2__nota hero-v2__nota--1">sabor de verdade</span>
+  <span class="hero-v2__nota hero-v2__nota--2">feito pra matar a fome</span>
 
   <div class="social-rail">
     <a href="#" data-social="instagram" aria-label="Instagram da Buck's Burguer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
@@ -172,12 +172,14 @@
           <p class="endereco-linha" data-endereco></p>
           <a class="endereco-rota" data-mapa-link target="_blank" rel="noopener">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Como chegar
+            Como chegar<span class="sr-only"> (abre em nova aba)</span>
           </a>
         </div>
       </div>
 
-      <figure class="mapa-card" data-some-sem-endereco>
+      <!-- Começa oculto: só aparece quando o JS confirma que há URL
+           válida. Sem isso, um JS que falhe deixaria uma moldura vazia. -->
+      <figure class="mapa-card" data-some-sem-endereco hidden>
         <!-- O src é montado por js/main.js a partir do endereço da config,
              para não existir endereço escrito em dois lugares. -->
         <iframe data-mapa-embed title="Mapa da Buck's Burguer"
@@ -198,7 +200,7 @@
       <img class="colagem__cartaz"
            src="assets/images/noitedoDate.jpg"
            alt="Noite do Date, toda sexta-feira. Casal por R$ 99,99, mediante reserva."
-           width="1242" height="2208" loading="lazy" decoding="async">
+           width="720" height="1280" loading="lazy" decoding="async">
     </div>
 
     <div class="reservas__texto">
@@ -316,6 +318,10 @@
     <button class="btn btn--primario btn--bloco" id="carrinhoFinalizar" type="button">
       Finalizar pedido
     </button>
+    <button class="carrinho__limpar" id="carrinhoLimpar" type="button">
+      Esvaziar carrinho
+    </button>
+
   </div>
 </aside>
 

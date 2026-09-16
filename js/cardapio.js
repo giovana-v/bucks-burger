@@ -230,8 +230,14 @@ const Cardapio = (() => {
 
     box.innerHTML = `
       <div class="produto__galeria">
-        <!-- IMAGEM PRINCIPAL DO PRODUTO: ${esc(p.imagem)} -->
-        <div class="ph produto__principal" id="produtoImagem" data-label="Foto principal&#10;${esc(p.nome)}"></div>
+        <!-- A foto principal é um <img> de verdade: as miniaturas trocam
+             o src/alt. Se o arquivo não existir, o onerror revela o
+             placeholder que fica atrás. -->
+        <div class="ph produto__principal" data-label="Foto principal&#10;${esc(p.nome)}">
+          <img id="produtoImagem" class="produto__foto" src="${esc(p.imagem)}"
+               alt="${esc(p.nome)}" loading="lazy" decoding="async"
+               onerror="this.hidden = true">
+        </div>
         <div class="produto__miniaturas" role="group" aria-label="Fotos do produto">
           ${miniaturas.slice(0, 4).map((img, i) => `
             <!-- MINIATURA ${i + 1}: ${esc(img)} -->
@@ -346,9 +352,9 @@ const Cardapio = (() => {
       Carrinho.abrir();
     });
 
-    // Miniaturas: marcam a foto escolhida e aplicam no quadro principal
+    // Miniaturas trocam a foto principal de verdade
     const principal = document.getElementById('produtoImagem');
-    document.querySelectorAll('.produto__miniaturas .miniatura').forEach(mini => {
+    document.querySelectorAll('.produto__miniaturas .miniatura').forEach((mini, indice) => {
       mini.addEventListener('click', () => {
         document.querySelectorAll('.produto__miniaturas .miniatura').forEach(m => {
           m.classList.remove('ativa');
@@ -357,11 +363,12 @@ const Cardapio = (() => {
         mini.classList.add('ativa');
         mini.setAttribute('aria-pressed', 'true');
 
-        // Só troca de fato quando a foto existir (hoje são placeholders)
         const foto = mini.dataset.foto;
-        if (foto && principal.style.backgroundImage) {
-          principal.style.backgroundImage = `url('${foto}')`;
-        }
+        if (!foto || !principal) return;
+
+        principal.hidden = false;          // pode ter sido escondida por erro
+        principal.src = foto;
+        principal.alt = `${p.nome} — foto ${indice + 1}`;
       });
     });
   }
@@ -492,6 +499,10 @@ const Cardapio = (() => {
   /* ---------- Boot ---------- */
   async function iniciar() {
     if (!(await carregar())) return;
+
+    // O carrinho guarda o preço do momento da adição. Assim que o
+    // catálogo chega, ele vira a fonte de verdade.
+    Carrinho.revalidarComCatalogo(dados.produtos);
 
     renderizarSemana();
     renderizarFiltros();

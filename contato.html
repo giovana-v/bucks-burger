@@ -42,7 +42,7 @@
 <!-- Fontes: preconnect + link no head carrega antes do CSS terminar -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
 
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/components.css">
@@ -133,20 +133,20 @@
         <div class="form__linha">
           <div class="campo">
             <label for="nome">Nome</label>
-            <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Seu nome completo" required>
-            <span class="form__erro">Informe seu nome.</span>
+            <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Seu nome completo" required aria-describedby="erroContatoNome">
+            <span class="form__erro" id="erroContatoNome" role="alert"></span>
           </div>
           <div class="campo">
             <label for="telefone">Telefone</label>
-            <input type="tel" id="telefone" name="telefone" autocomplete="tel" inputmode="numeric" placeholder="(19) 99999-9999" required>
-            <span class="form__erro">Informe um telefone válido.</span>
+            <input type="tel" id="telefone" name="telefone" autocomplete="tel" inputmode="numeric" placeholder="(19) 99999-9999" required aria-describedby="erroContatoTelefone">
+            <span class="form__erro" id="erroContatoTelefone" role="alert"></span>
           </div>
         </div>
 
         <div class="campo">
           <label for="email">E-mail</label>
-          <input type="email" id="email" name="email" autocomplete="email" placeholder="voce@email.com" required>
-          <span class="form__erro">Informe um e-mail válido.</span>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="voce@email.com" required aria-describedby="erroContatoEmail">
+          <span class="form__erro" id="erroContatoEmail" role="alert"></span>
         </div>
 
         <div class="campo">
@@ -162,8 +162,8 @@
 
         <div class="campo">
           <label for="mensagem">Mensagem</label>
-          <textarea id="mensagem" name="mensagem" placeholder="Conta pra gente..." required></textarea>
-          <span class="form__erro">Escreva sua mensagem.</span>
+          <textarea id="mensagem" name="mensagem" placeholder="Conta pra gente..." required aria-describedby="erroContatoMensagem"></textarea>
+          <span class="form__erro" id="erroContatoMensagem" role="alert"></span>
         </div>
 
         <button class="btn btn--primario" type="submit">Enviar pelo WhatsApp</button>
@@ -237,6 +237,10 @@
     <button class="btn btn--primario btn--bloco" id="carrinhoFinalizar" type="button">
       Finalizar pedido
     </button>
+    <button class="carrinho__limpar" id="carrinhoLimpar" type="button">
+      Esvaziar carrinho
+    </button>
+
   </div>
 </aside>
 

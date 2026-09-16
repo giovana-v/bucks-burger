@@ -104,7 +104,22 @@ const Loja = (() => {
       return { situacao: 'gratis', centavos: 0, rotulo: 'Grátis', gratis: true };
     }
 
+    // Regras cadastradas que não puderam ser avaliadas por falta de
+    // dado. Isso vira aviso no console, para a regra não falhar calada.
+    const pendencias = [];
+
     for (const regra of regras) {
+      if (regra.tipo === 'bairro' && !bairro) {
+        pendencias.push('regra por bairro ignorada: bairro não informado');
+      }
+      if (regra.tipo === 'cep' && !cep) {
+        pendencias.push('regra por CEP ignorada: CEP não informado');
+      }
+      if (regra.tipo === 'distancia' && typeof distanciaKm !== 'number') {
+        pendencias.push('regra por distância ignorada: o projeto não calcula distância ' +
+                        '(exige address.coords da loja e as coordenadas do cliente)');
+      }
+
       if (regra.tipo === 'bairro' && bairro) {
         const alvo = normalizarTexto(bairro);
         const bate = (regra.bairros || []).some(b => normalizarTexto(b) === alvo);
@@ -128,7 +143,8 @@ const Loja = (() => {
       situacao: 'indeterminada',
       centavos: null,
       rotulo: 'A combinar com a loja',
-      gratis: false
+      gratis: false,
+      pendencias
     };
   }
 
@@ -410,6 +426,8 @@ const Loja = (() => {
    */
   function validarCheckout(dados = {}, contexto = {}) {
     const erros = {};
+    // avisos não bloqueiam o envio; só informam a cliente
+    const avisos = {};
     const v = (c) => String(dados[c] ?? '').trim();
 
     if (v('nome').length < 3) {
@@ -429,6 +447,7 @@ const Loja = (() => {
       if (v('rua').length < 3) erros.rua = 'Informe a rua.';
       if (v('numero') === '') erros.numero = 'Informe o número (ou "s/n").';
       if (v('bairro').length < 2) erros.bairro = 'Informe o bairro.';
+      if (!normalizarCep(dados.cep)) erros.cep = 'Informe um CEP válido (8 dígitos).';
     }
 
     if (!Object.keys(PAGAMENTOS).includes(v('pagamento'))) {
@@ -437,10 +456,21 @@ const Loja = (() => {
 
     if (v('pagamento') === 'dinheiro' && dados.semTroco !== true) {
       const troco = lerValorDigitado(dados.trocoPara);
+
       if (troco === null) {
         erros.trocoPara = 'Informe o valor ou marque "não preciso de troco".';
       } else if (contexto.total != null && troco < contexto.total) {
-        erros.trocoPara = `O valor deve ser igual ou maior que ${formatarMoeda(contexto.total)}.`;
+        // contexto.total já vem de calcularTotais, que soma subtotal,
+        // adicionais e a taxa de entrega quando ela é conhecida.
+        erros.trocoPara = contexto.totalParcial
+          // Taxa ainda indefinida: o valor cobrado será MAIOR que este.
+          ? `O pedido já soma ${formatarMoeda(contexto.total)} sem a taxa de entrega. ` +
+            `Informe um valor a partir disso.`
+          : `O valor deve ser igual ou maior que ${formatarMoeda(contexto.total)}.`;
+      } else if (contexto.totalParcial) {
+        // Passa na validação, mas a cliente precisa saber que ainda
+        // falta somar a taxa. Não é erro: é aviso.
+        avisos.trocoPara = 'A taxa de entrega ainda será somada a este total.';
       }
     }
 
@@ -454,7 +484,42 @@ const Loja = (() => {
       erros.carrinho = `Pedido mínimo de ${formatarMoeda(contexto.minimo)}.`;
     }
 
-    return { valido: Object.keys(erros).length === 0, erros };
+    return { valido: Object.keys(erros).length === 0, erros, avisos };
+  }
+
+  /**
+   * Valida um campo do formulário de contato.
+   * Pura, para poder ser testada sem DOM.
+   * @returns {{ valido: boolean, mensagem: string }}
+   *   mensagem vazia quando válido — é ela que o span de erro recebe,
+   *   e span vazio é escondido pelo CSS (.form__erro:empty).
+   */
+  function validarCampoContato(tipo, valor) {
+    const v = String(valor ?? '').trim();
+
+    if (v === '') {
+      const vazio = {
+        nome: 'Informe seu nome.',
+        tel: 'Informe um telefone válido.',
+        email: 'Informe um e-mail válido.',
+        texto: 'Escreva sua mensagem.'
+      };
+      return { valido: false, mensagem: vazio[tipo] || 'Preencha este campo.' };
+    }
+
+    if (tipo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+      return { valido: false, mensagem: 'Informe um e-mail válido.' };
+    }
+
+    if (tipo === 'tel' && v.replace(/\D/g, '').length < 10) {
+      return { valido: false, mensagem: 'Informe um telefone com DDD.' };
+    }
+
+    if (tipo === 'nome' && v.length < 3) {
+      return { valido: false, mensagem: 'Informe seu nome.' };
+    }
+
+    return { valido: true, mensagem: '' };
   }
 
   /* ================= MENSAGEM DO WHATSAPP ================= */
@@ -567,6 +632,18 @@ const Loja = (() => {
 
   /* ================= FORMATAÇÃO ================= */
 
+  /** Máscara de CEP: 13140-252 */
+  function formatarCep(valor) {
+    const d = String(valor || '').replace(/\D/g, '').slice(0, 8);
+    return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+  }
+
+  /** Só os dígitos do CEP, ou '' se não tiver os 8. */
+  function normalizarCep(valor) {
+    const d = String(valor || '').replace(/\D/g, '');
+    return d.length === 8 ? d : '';
+  }
+
   /** Máscara de telefone: (19) 99193-8590 */
   function formatarTelefone(valor) {
     const d = String(valor || '').replace(/\D/g, '').slice(0, 11);
@@ -614,9 +691,9 @@ const Loja = (() => {
     precoUnitario, precoItem, calcularSubtotal,
     calcularTaxaEntrega, distanciaEntre, calcularTotais,
     estaAberto, momentoNoFuso, emMinutos, agruparHorarios,
-    lerAlergenos, validarCheckout, PAGAMENTOS,
+    lerAlergenos, validarCheckout, validarCampoContato, PAGAMENTOS,
     montarMensagem, montarUrlWhatsapp,
-    formatarTelefone, enderecoFormatado, enderecoCompleto, urlMapa, urlMapaEmbed
+    formatarTelefone, formatarCep, normalizarCep, enderecoFormatado, enderecoCompleto, urlMapa, urlMapaEmbed
   };
 })();
 

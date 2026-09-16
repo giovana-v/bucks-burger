@@ -8,7 +8,7 @@ Cobrem as **regras de negócio** (`js/loja.js`), que são funções puras sem DO
 node tests/testes.js
 ```
 
-Última execução: **59 passaram, 0 falharam**.
+Última execução: **81 passaram, 0 falharam**.
 
 O que está coberto:
 
@@ -22,6 +22,9 @@ O que está coberto:
 | Checkout | retirada válida, nome incompleto, telefone não exigido, endereço só na entrega, dinheiro com/sem troco, troco menor que o total, carrinho vazio, loja fechada, abaixo do mínimo |
 | Mensagem | **formato conferido linha a linha contra o modelo**, todos os blocos, ausência de `undefined` e de telefone, retirada sem endereço, observação vazia não vira linha solta, "não preciso de troco", total parcial, valores idênticos aos do carrinho, `encodeURIComponent` |
 | Dados comerciais | endereço vazio não vira texto, contatos não confirmados ausentes, máscara de telefone |
+| CEP | máscara, normalização, regra por faixa, CEP inválido, pendência reportada quando falta dado |
+| Troco | total com taxa, troco insuficiente, taxa indeterminada não vira total final, retirada, PIX/cartão sem interferência |
+| Contato | campo vazio, campo válido sem mensagem, inválido com mensagem específica, correção limpa a mensagem |
 
 ## 2. Verificações estáticas executadas
 
@@ -44,6 +47,8 @@ python3 -m http.server 8000
 ```
 
 ### 3.1 Carrinho e observações
+- [ ] Editar a observação e clicar direto em "+", "−" ou "×" → **funciona no primeiro clique**.
+- [ ] Esvaziar carrinho → pede confirmação e zera lista, contador e total.
 - [ ] Adicionar um item pelo "+" do cardápio → o modal abre com nome, alérgenos, quantidade e observação.
 - [ ] Escrever uma observação, adicionar, abrir o carrinho → a observação aparece no item.
 - [ ] Editar a observação direto no carrinho (sem `prompt`) → salva ao sair do campo e pelo botão.

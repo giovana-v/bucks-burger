@@ -82,10 +82,19 @@ const Checkout = (() => {
             <input type="text" id="ckComplemento" name="complemento" placeholder="Apto, bloco, casa">
           </div>
 
-          <div class="campo">
-            <label for="ckBairro">Bairro <span aria-hidden="true">*</span></label>
-            <input type="text" id="ckBairro" name="bairro" aria-describedby="erroBairro">
-            <span class="form__erro" id="erroBairro" role="alert"></span>
+          <div class="form__linha">
+            <div class="campo">
+              <label for="ckBairro">Bairro <span aria-hidden="true">*</span></label>
+              <input type="text" id="ckBairro" name="bairro" aria-describedby="erroBairro">
+              <span class="form__erro" id="erroBairro" role="alert"></span>
+            </div>
+            <div class="campo">
+              <label for="ckCep">CEP <span aria-hidden="true">*</span></label>
+              <input type="text" id="ckCep" name="cep" inputmode="numeric"
+                     autocomplete="postal-code" maxlength="9" placeholder="00000-000"
+                     aria-describedby="erroCep">
+              <span class="form__erro" id="erroCep" role="alert"></span>
+            </div>
           </div>
 
           <div class="campo">
@@ -193,6 +202,7 @@ const Checkout = (() => {
       numero: tipo === 'entrega' ? $('ckNumero').value.trim() : '',
       complemento: tipo === 'entrega' ? $('ckComplemento').value.trim() : '',
       bairro: tipo === 'entrega' ? $('ckBairro').value.trim() : '',
+      cep: tipo === 'entrega' ? $('ckCep').value.trim() : '',
       referencia: tipo === 'entrega' ? $('ckReferencia').value.trim() : '',
       pagamento: valorRadio('pagamento'),
       semTroco: $('ckSemTroco').checked,
@@ -205,7 +215,10 @@ const Checkout = (() => {
     const itens = Carrinho.listar();
     const totais = Loja.calcularTotais(itens, BUSINESS_CONFIG, {
       tipoPedido: dados.tipoPedido,
-      bairro: dados.bairro
+      bairro: dados.bairro,
+      cep: Loja.normalizarCep(dados.cep)
+      // distanciaKm não é passado: o projeto não calcula distância.
+      // Ver a pendência reportada em totais.taxa.pendencias.
     });
     const estado = Loja.estaAberto(BUSINESS_CONFIG.businessHours);
 
@@ -213,6 +226,7 @@ const Checkout = (() => {
       itens, totais, estado,
       temItens: itens.length > 0,
       total: totais.total,
+      totalParcial: totais.totalParcial,
       lojaFechada: !estado.aberto,
       abaixoDoMinimo: !totais.atingiuMinimo,
       minimo: totais.minimo
@@ -247,6 +261,10 @@ const Checkout = (() => {
     total.classList.add('resumo__linha--total');
     box.appendChild(total);
 
+    // Regra de taxa cadastrada mas não avaliada por falta de dado:
+    // avisa no console em vez de falhar em silêncio.
+    (totais.taxa.pendencias || []).forEach(p => console.warn('[entrega]', p));
+
     if (totais.totalParcial) {
       const nota = document.createElement('p');
       nota.className = 'resumo__nota';
@@ -267,7 +285,8 @@ const Checkout = (() => {
   /* ---------- Erros ---------- */
   const CAMPO_DE_ERRO = {
     nome: 'ckNome', rua: 'ckRua', numero: 'ckNumero',
-    bairro: 'ckBairro', trocoPara: 'ckTroco', observacaoGeral: 'ckObs'
+    bairro: 'ckBairro', cep: 'ckCep', trocoPara: 'ckTroco',
+    observacaoGeral: 'ckObs'
   };
 
   function limparErros() {
@@ -312,7 +331,7 @@ const Checkout = (() => {
 
     const dados = lerFormulario();
     const ctx = contextoAtual(dados);
-    const { valido, erros } = Loja.validarCheckout(dados, ctx);
+    const { valido, erros, avisos } = Loja.validarCheckout(dados, ctx);
 
     // Em caso de erro nada é limpo: o cliente não reescreve o formulário.
     if (!valido) {
@@ -320,6 +339,7 @@ const Checkout = (() => {
       return;
     }
     limparErros();
+    Object.entries(avisos || {}).forEach(([campo, msg]) => Carrinho.toast(msg));
 
     const numero = BUSINESS_CONFIG.whatsapp;
     if (!numero) {
@@ -343,7 +363,11 @@ const Checkout = (() => {
     window.open(url, '_blank', 'noopener');
 
     Modal.fechar(dialog);
-    Carrinho.toast('Pedido enviado! Confirme no WhatsApp.');
+
+    // NÃO limpamos o carrinho sozinhos: abrir o WhatsApp não garante
+    // que a mensagem foi enviada. A cliente decide, pelo carrinho.
+    Carrinho.toast('Pedido montado no WhatsApp. Confira e envie por lá.');
+    Carrinho.abrir();
   }
 
   /* ---------- Eventos ---------- */
@@ -354,10 +378,17 @@ const Checkout = (() => {
       if (['tipoPedido', 'pagamento', 'semTroco'].includes(e.target.name)) {
         atualizarCondicionais();
       }
-      if (e.target.name === 'bairro') atualizarResumo();
+      if (['bairro', 'cep'].includes(e.target.name)) atualizarResumo();
     });
 
     form.addEventListener('submit', enviar);
+
+    // Máscara do CEP; o resumo recalcula porque a taxa pode depender dele
+    const cep = $('ckCep');
+    cep.addEventListener('input', () => {
+      cep.value = Loja.formatarCep(cep.value);
+      atualizarResumo();
+    });
 
     // Contador da observação
     const obs = $('ckObs');

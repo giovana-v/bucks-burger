@@ -10,7 +10,11 @@
   --preto:        #0B0B0B;
   --preto-2:      #141414;
   --preto-3:      #1C1C1C;
-  --vermelho:     #C51F28;
+  --vermelho:     #C51F28;   /* fundos, botões, bordas, badges */
+  /* Vermelho só para TEXTO sobre fundo escuro. O #C51F28 dá apenas
+     2,92:1 sobre #1C1C1C, abaixo do mínimo AA de 4,5:1.
+     Este tom dá 5,02:1 e mantém a leitura da marca. */
+  --vermelho-texto: #E85D64;
   --vermelho-esc: #8E141B;
   --branco:       #FFFFFF;
   --dourado:      #D9A928;
@@ -21,7 +25,7 @@
   /* Texto */
   --texto:        #F2F2F2;
   --texto-suave:  #B9B9B9;
-  --texto-fraco:  #7E7E7E;
+  --texto-fraco:  #8A8A8A;   /* 4,94:1 sobre #1C1C1C (o antigo #7E7E7E dava 4,20:1) */
 
   /* Tipografia */
   --fonte-titulo: 'Anton', 'Arial Black', sans-serif;

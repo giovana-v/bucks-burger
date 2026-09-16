@@ -208,10 +208,15 @@ function renderizarEndereco() {
     el.href = rota;
   });
 
+  // O mapa só é revelado quando há URL válida. Se o JS não rodar, o
+  // figure continua com [hidden] e a cliente ainda tem o endereço em
+  // texto e o link "Como chegar".
   const embed = Loja.urlMapaEmbed(a);
   document.querySelectorAll('[data-mapa-embed]').forEach(el => {
-    if (!embed) { el.closest('.mapa-card')?.remove(); return; }
+    const cartao = el.closest('.mapa-card');
+    if (!embed) { cartao?.remove(); return; }
     el.src = embed;
+    if (cartao) cartao.hidden = false;
   });
 }
 
@@ -304,30 +309,56 @@ function atualizarAno() {
   });
 }
 
-/* ---------- Formulário de contato ---------- */
+/* ---------- Formulário de contato ----------
+   Mesmo sistema de erros do checkout: o span nasce vazio no HTML e o
+   JS escreve a mensagem. O CSS esconde span vazio (.form__erro:empty),
+   então nada aparece antes de o cliente errar algo. */
 function iniciarFormulario() {
   const form = document.getElementById('formContato');
   if (!form) return;
 
+  /** Descobre que tipo de validação o campo pede. */
+  const tipoDoCampo = (input) => {
+    if (input.type === 'email') return 'email';
+    if (input.type === 'tel') return 'tel';
+    if (input.tagName === 'TEXTAREA') return 'texto';
+    return 'nome';
+  };
+
   const validar = (campo) => {
     const input = campo.querySelector('input, textarea');
-    if (!input) return true;
+    if (!input) return true;                       // <select> não é validado
 
-    let valido = input.value.trim() !== '';
-    if (valido && input.type === 'email') valido = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(input.value.trim());
-    if (valido && input.type === 'tel') valido = input.value.replace(/\D/g, '').length >= 10;
+    const { valido, mensagem } = Loja.validarCampoContato(tipoDoCampo(input), input.value);
 
+    const erro = campo.querySelector('.form__erro');
+    if (erro) erro.textContent = mensagem;         // '' quando válido -> some
     campo.classList.toggle('invalido', !valido);
     input.setAttribute('aria-invalid', String(!valido));
+
     return valido;
   };
 
+  const limparErro = (campo) => {
+    const erro = campo.querySelector('.form__erro');
+    if (erro) erro.textContent = '';
+    campo.classList.remove('invalido');
+    campo.querySelector('input, textarea')?.removeAttribute('aria-invalid');
+  };
+
   form.querySelectorAll('.campo').forEach(campo => {
-    campo.querySelector('input, textarea')?.addEventListener('blur', () => validar(campo));
+    const input = campo.querySelector('input, textarea');
+    if (!input) return;
+    input.addEventListener('blur', () => validar(campo));
+    // Assim que a cliente começa a corrigir, o erro some
+    input.addEventListener('input', () => {
+      if (campo.classList.contains('invalido')) limparErro(campo);
+    });
   });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+
     const campos = [...form.querySelectorAll('.campo')];
     if (!campos.map(validar).every(Boolean)) {
       form.querySelector('.campo.invalido input, .campo.invalido textarea')?.focus();

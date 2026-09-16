@@ -377,9 +377,19 @@ teste('ENTREGA exige rua, número e bairro', () => {
 teste('ENTREGA com endereço completo passa; complemento e referência são opcionais', () => {
   const r = Loja.validarCheckout({
     ...baseValida, tipoPedido: 'entrega',
-    rua: 'Rua Exemplo', numero: '100', bairro: 'Centro'
+    rua: 'Rua Exemplo', numero: '100', bairro: 'Centro', cep: '13140-252'
   }, ctxOk);
   igual(r.valido, true);
+});
+
+teste('ENTREGA exige CEP válido; RETIRADA não', () => {
+  const entrega = { ...baseValida, tipoPedido: 'entrega',
+                    rua: 'Rua Exemplo', numero: '100', bairro: 'Centro' };
+  verdadeiro(Loja.validarCheckout({ ...entrega }, ctxOk).erros.cep, 'sem CEP deve falhar');
+  verdadeiro(Loja.validarCheckout({ ...entrega, cep: '1314' }, ctxOk).erros.cep, 'CEP curto deve falhar');
+  igual(Loja.validarCheckout({ ...entrega, cep: '13140252' }, ctxOk).erros.cep, undefined);
+  // retirada não pede CEP
+  igual(Loja.validarCheckout(baseValida, ctxOk).erros.cep, undefined);
 });
 
 teste('DINHEIRO exige troco ou a marcação "não preciso de troco"', () => {
@@ -626,6 +636,143 @@ teste('máscara de telefone cobre fixo e celular', () => {
   igual(Loja.formatarTelefone('19991938590'), '(19) 99193-8590');
   igual(Loja.formatarTelefone('1933334444'), '(19) 3333-4444');
   igual(Loja.formatarTelefone(''), '');
+});
+
+
+/* ============================================================ */
+grupo('CEP — máscara, normalização e regra de taxa');
+
+teste('máscara e normalização do CEP', () => {
+  igual(Loja.formatarCep('13140252'), '13140-252');
+  igual(Loja.formatarCep('131'), '131');
+  igual(Loja.formatarCep('13140-252999'), '13140-252');
+  igual(Loja.normalizarCep('13140-252'), '13140252');
+  igual(Loja.normalizarCep('1314'), '');
+  igual(Loja.normalizarCep(''), '');
+});
+
+teste('regra por CEP aplica a taxa dentro da faixa', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'cep', de: '13140000', ate: '13149999', taxaCentavos: 700 }] } };
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: '13140252' }).centavos, 700);
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: '99999999' }).centavos, null);
+});
+
+teste('CEP inválido não aplica taxa nem quebra', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'cep', de: '13140000', ate: '13149999', taxaCentavos: 700 }] } };
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: '1314' }).situacao, 'indeterminada');
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: 'abc' }).situacao, 'indeterminada');
+});
+
+teste('regra sem o dado necessário é reportada, não falha calada', () => {
+  const cfg = { delivery: { feeRules: [
+    { tipo: 'cep', de: '13140000', ate: '13149999', taxaCentavos: 700 },
+    { tipo: 'distancia', ateKm: 3, taxaCentavos: 0 }
+  ] } };
+  const r = Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega' });
+  igual(r.situacao, 'indeterminada');
+  igual(r.pendencias.length, 2);
+  contem(r.pendencias.join(' | '), 'CEP não informado');
+  contem(r.pendencias.join(' | '), 'não calcula distância');
+});
+
+teste('retirada continua sem taxa mesmo com regras cadastradas', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'cep', de: '00000000', ate: '99999999', taxaCentavos: 900 }] } };
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'retirada', cep: '13140252' }).centavos, 0);
+});
+
+/* ============================================================ */
+grupo('TROCO — validado contra o total final');
+
+const cfgTaxa = { delivery: { feeRules: [{ tipo: 'bairro', bairros: ['Centro'], taxaCentavos: 600 }] } };
+const entregaBase = {
+  nome: 'Ana Lima', tipoPedido: 'entrega', rua: 'Rua Exemplo',
+  numero: '100', bairro: 'Centro', cep: '13140-252', pagamento: 'dinheiro'
+};
+
+teste('pedido 50 + taxa 6: troco para 50 é recusado', () => {
+  const totais = Loja.calcularTotais([burger({ precoCentavos: 5000 })], cfgTaxa,
+    { tipoPedido: 'entrega', bairro: 'Centro' });
+  igual(totais.total, 5600, 'o total precisa incluir a taxa');
+
+  const r = Loja.validarCheckout({ ...entregaBase, trocoPara: '50' },
+    { temItens: true, total: totais.total, totalParcial: totais.totalParcial });
+  igual(r.valido, false);
+  contem(r.erros.trocoPara, '56,00');
+});
+
+teste('pedido 50 + taxa 6: troco para 60 é aceito', () => {
+  const totais = Loja.calcularTotais([burger({ precoCentavos: 5000 })], cfgTaxa,
+    { tipoPedido: 'entrega', bairro: 'Centro' });
+  const r = Loja.validarCheckout({ ...entregaBase, trocoPara: '60' },
+    { temItens: true, total: totais.total, totalParcial: totais.totalParcial });
+  igual(r.valido, true);
+  igual(r.avisos.trocoPara, undefined, 'taxa conhecida não gera aviso');
+});
+
+teste('taxa indeterminada: não trata o subtotal como total final', () => {
+  const totais = Loja.calcularTotais([burger({ precoCentavos: 5000 })], BUSINESS_CONFIG,
+    { tipoPedido: 'entrega' });
+  igual(totais.totalParcial, true);
+
+  const baixo = Loja.validarCheckout({ ...entregaBase, trocoPara: '40' },
+    { temItens: true, total: totais.total, totalParcial: true });
+  contem(baixo.erros.trocoPara, 'sem a taxa de entrega');
+
+  const ok = Loja.validarCheckout({ ...entregaBase, trocoPara: '60' },
+    { temItens: true, total: totais.total, totalParcial: true });
+  igual(ok.valido, true);
+  contem(ok.avisos.trocoPara, 'taxa de entrega ainda será somada');
+});
+
+teste('retirada: troco igual ao total é aceito', () => {
+  const r = Loja.validarCheckout(
+    { nome: 'Ana Lima', tipoPedido: 'retirada', pagamento: 'dinheiro', trocoPara: '50' },
+    { temItens: true, total: 5000, totalParcial: false });
+  igual(r.valido, true);
+});
+
+teste('PIX e cartão não sofrem com a validação de troco', () => {
+  for (const p of ['pix', 'credito', 'debito']) {
+    const r = Loja.validarCheckout({ ...entregaBase, pagamento: p, trocoPara: '1' },
+      { temItens: true, total: 999999, totalParcial: false });
+    igual(r.erros.trocoPara, undefined, `${p} não deve validar troco`);
+    igual(r.valido, true);
+  }
+});
+
+/* ============================================================ */
+grupo('FORMULÁRIO DE CONTATO — mensagens de erro');
+
+teste('campo vazio devolve a mensagem correspondente', () => {
+  igual(Loja.validarCampoContato('nome', '').mensagem, 'Informe seu nome.');
+  igual(Loja.validarCampoContato('tel', '').mensagem, 'Informe um telefone válido.');
+  igual(Loja.validarCampoContato('email', '').mensagem, 'Informe um e-mail válido.');
+  igual(Loja.validarCampoContato('texto', '').mensagem, 'Escreva sua mensagem.');
+});
+
+teste('campo válido devolve mensagem VAZIA (o span some pelo :empty)', () => {
+  const casos = [
+    ['nome', 'Maria Silva'], ['tel', '(19) 99193-8590'],
+    ['email', 'maria@exemplo.com'], ['texto', 'Quero reservar uma mesa.']
+  ];
+  for (const [tipo, valor] of casos) {
+    const r = Loja.validarCampoContato(tipo, valor);
+    igual(r.valido, true, `${tipo} deveria ser válido`);
+    igual(r.mensagem, '', `${tipo} válido não pode ter mensagem`);
+  }
+});
+
+teste('valor preenchido mas inválido devolve mensagem específica', () => {
+  igual(Loja.validarCampoContato('email', 'maria@').valido, false);
+  igual(Loja.validarCampoContato('tel', '99999').mensagem, 'Informe um telefone com DDD.');
+  igual(Loja.validarCampoContato('nome', 'Ma').mensagem, 'Informe seu nome.');
+});
+
+teste('corrigir o campo limpa a mensagem', () => {
+  const antes = Loja.validarCampoContato('email', 'invalido');
+  const depois = Loja.validarCampoContato('email', 'valido@exemplo.com');
+  verdadeiro(antes.mensagem !== '', 'inválido deve ter mensagem');
+  igual(depois.mensagem, '', 'corrigido deve zerar a mensagem');
 });
 
 /* ============================================================ */

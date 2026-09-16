@@ -116,6 +116,13 @@ delivery: {
 }
 ```
 
+> **Regras por distância ainda não funcionam.** O projeto não calcula
+> distância: falta `address.coords` da loja *e* as coordenadas do
+> cliente (o checkout coleta endereço em texto). Regras `tipo: "distancia"`
+> cadastradas são ignoradas, e o motivo aparece no console do navegador
+> como `[entrega] regra por distância ignorada: ...`. Regras por
+> **bairro** e por **CEP** funcionam.
+
 Três formatos de regra, avaliados na ordem da lista:
 
 ```js
@@ -205,10 +212,10 @@ O rótulo some sozinho quando há `url` no `style`.
 | `assets/images/contato-topo.jpg` | Topo do contato | falta |
 | fotos dos produtos | campo `imagem` de cada item do `produtos.json` | falta |
 
-> `hero-banner.jpg` é a versão otimizada de `banner.jpeg` (522 KB → 91 KB,
-> mesmas dimensões). O original foi mantido na pasta como arquivo-mestre; o
-> site usa só a versão otimizada. Se trocar o banner, gere a versão web com
-> qualidade 80, JPEG progressivo.
+> As imagens são otimizadas antes de entrar: JPEG progressivo, qualidade
+> 80–82, redimensionado para no máximo ~3x o tamanho de exibição.
+> `hero-banner.jpg` veio de um original de 522 KB; `noitedoDate.jpg` de
+> 281 KB. Os originais ficam no histórico do git, não na pasta.
 
 > O cartaz da Noite do Date tem o texto embutido na imagem ("sexta-feira,
 > casal R$ 99,99, mediante reserva"). Isso está descrito no `alt` para
