@@ -13,6 +13,18 @@ publica sozinho.
 3. Autorize o GitHub e escolha **`giovana-v/bucks-burger`**
    (funciona com repositório privado, sem custo)
 
+> **Atenção à pasta publicada.** O Wrangler publica tudo que está na
+> pasta de assets. Como aqui a pasta é a raiz do repositório, existem
+> dois arquivos versionados que impedem o vazamento do `.git`:
+>
+> - **`.assetsignore`** — lista o que não vai para a web
+> - **`wrangler.jsonc`** — se não existir, o build gera uma configuração
+>   automática a cada execução e publica a pasta inteira
+>
+> **Nunca remova nenhum dos dois.** Sem eles, `https://SEU-SITE/.git/config`
+> fica acessível e o histórico completo do repositório privado pode ser
+> baixado por qualquer pessoa.
+
 ## 2. Configurar o build
 
 O site não tem etapa de build. Preencha exatamente assim:
@@ -36,6 +48,11 @@ Abra a URL `.pages.dev` e verifique:
 - [ ] Adicionar ao carrinho e finalizar abre o WhatsApp certo
 - [ ] `/404.html` — uma URL inexistente cai na página de erro
 - [ ] `/robots.txt` responde
+- [ ] **`/.git/config` retorna 404** — se retornar 200, o `.assetsignore`
+      não está sendo aplicado. Confira com:
+      ```bash
+      curl -o /dev/null -w "%{http_code}\n" https://SEU-SITE/.git/config
+      ```
 
 ---
 

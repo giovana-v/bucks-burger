@@ -1,0 +1,15 @@
+{
+  // Configuração do deploy no Cloudflare.
+  // Está versionada de propósito: sem ela o build gera uma automática
+  // a cada execução, e a automática publica a pasta inteira — inclusive
+  // o .git. Os arquivos excluídos ficam em .assetsignore.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bucks-burger",
+  "compatibility_date": "2026-09-16",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "."
+  }
+}

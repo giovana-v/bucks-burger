@@ -1,0 +1,35 @@
+# ============================================================
+# Arquivos que NÃO devem ir para a web
+# ============================================================
+# O Wrangler publica tudo que está na pasta de assets. Como a pasta
+# é a raiz do repositório, sem esta lista ele sobe o .git inteiro —
+# e aí qualquer pessoa consegue baixar o histórico completo do
+# repositório privado pela URL do site.
+#
+# Sintaxe igual à do .gitignore.
+# ============================================================
+
+# Repositório Git — o vazamento mais grave
+.git
+.git/**
+
+# Temporários e configuração do próprio Wrangler
+.wrangler
+.wrangler/**
+wrangler.jsonc
+wrangler.toml
+
+# Dependências, caso um dia existam
+node_modules
+node_modules/**
+
+# Testes e documentação: não fazem parte do site
+tests
+tests/**
+*.md
+
+# Arquivos de controle que não servem ao visitante
+.gitignore
+.assetsignore
+.gitkeep
+**/.gitkeep
