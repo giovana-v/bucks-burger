@@ -93,10 +93,14 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero-v2">
-  <!-- IMAGEM DE FUNDO: parede de tijolo escura -> assets/images/hero-tijolo.jpg -->
-  <div class="ph hero-v2__fundo ph--sem-borda"></div>
-  <!-- IMAGEM: tábua de madeira (faixa inferior) -> assets/images/hero-madeira.jpg -->
-  <div class="ph hero-v2__madeira ph--sem-borda"></div>
+  <!-- Banner do hero. alt vazio porque é imagem decorativa: o texto ao
+       lado já diz tudo, e um alt aqui só repetiria a leitura.
+       fetchpriority="high" porque é o maior elemento da primeira tela. -->
+  <img class="hero-v2__foto"
+       src="assets/images/hero-banner.jpg"
+       alt="" width="1376" height="768"
+       fetchpriority="high" decoding="async">
+  <div class="hero-v2__veu" aria-hidden="true"></div>
 
   <div class="fita">nova receita</div>
   <div class="fita__lista">
@@ -104,6 +108,9 @@
     <span>+ cebola caramelizada</span>
     <span>+ queijo</span>
   </div>
+
+  <span class="hero-v2__nota hero-v2__nota--1">and cheese</span>
+  <span class="hero-v2__nota hero-v2__nota--2">caramelized onion</span>
 
   <div class="social-rail">
     <a href="#" data-social="instagram" aria-label="Instagram da Buck's Burguer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
@@ -124,12 +131,6 @@
         <a class="btn btn--claro" href="cardapio.html">Pedir agora</a>
       </div>
 
-      <div class="hero-v2__midia">
-        <!-- IMAGEM: hambúrguer principal em PNG sem fundo -> assets/images/hero-burger.png -->
-        <div class="ph" data-label="Foto do hambúrguer&#10;(PNG sem fundo)"></div>
-        <span class="hero-v2__nota hero-v2__nota--1">and cheese</span>
-        <span class="hero-v2__nota hero-v2__nota--2">caramelized onion</span>
-      </div>
     </div>
   </div>
 </section>

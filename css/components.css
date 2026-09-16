@@ -1044,37 +1044,41 @@
   overflow: hidden;
   border-bottom: 4px solid var(--vermelho);
 }
-.hero-v2__fundo {
-  position: absolute; inset: 0;
-  z-index: 0;
-  border: none; border-radius: 0;
-  background-color: #100c09;
-}
-.hero-v2__fundo::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(11,11,11,.94) 10%, rgba(11,11,11,.5) 58%, rgba(11,11,11,.88) 100%);
-}
-/* faixa de madeira na base do hero */
-.hero-v2__madeira {
+/* Banner de fundo do hero */
+.hero-v2__foto {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 150px;
-  z-index: 1;
-  border: none; border-radius: 0;
-  background-color: var(--marrom);
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A comida fica à direita da imagem; o texto ocupa a esquerda. */
+  object-position: 68% center;
 }
-.hero-v2__madeira::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(11,11,11,.92), rgba(11,11,11,.45));
+
+/* Véu que escurece o lado do texto e funde a base com a seção seguinte */
+.hero-v2__veu {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg,
+      rgba(11,11,11,.95) 0%,
+      rgba(11,11,11,.86) 30%,
+      rgba(11,11,11,.42) 62%,
+      rgba(11,11,11,.30) 100%),
+    linear-gradient(180deg,
+      rgba(11,11,11,.55) 0%,
+      rgba(11,11,11,0) 28%,
+      rgba(11,11,11,0) 72%,
+      rgba(11,11,11,.85) 100%);
 }
 
 .hero-v2__inner {
   position: relative;
   z-index: 3;
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
+  grid-template-columns: minmax(0, 560px);
   align-items: center;
   gap: 20px;
   width: 100%;
@@ -1126,14 +1130,6 @@
 }
 
 /* Burger + legendas manuscritas */
-.hero-v2__midia { position: relative; }
-.hero-v2__midia .ph {
-  aspect-ratio: 1/.92;
-  min-height: 320px;
-  border: none;
-  background-color: transparent;
-}
-.hero-v2__midia .ph::before { color: rgba(217,169,40,.5); }
 .hero-v2__nota {
   position: absolute;
   font-family: var(--fonte-script);
@@ -1142,8 +1138,9 @@
   white-space: nowrap;
   text-shadow: 0 1px 4px rgba(0,0,0,.9);
 }
-.hero-v2__nota--1 { right: 2%;  bottom: 16%; }
-.hero-v2__nota--2 { right: 14%; bottom: 5%; color: var(--dourado); }
+.hero-v2__nota { z-index: 3; }
+.hero-v2__nota--1 { right: 5%;  bottom: 22%; }
+.hero-v2__nota--2 { right: 16%; bottom: 13%; color: var(--dourado); }
 
 /* Fita "nova receita" */
 .fita {

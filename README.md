@@ -190,13 +190,17 @@ O rótulo some sozinho quando há `url` no `style`.
 | --- | --- | --- |
 | `assets/images/logo.jpg` | Logo no header, nas duas faixas do rodapé e favicon | **colocada** |
 | `assets/images/noitedoDate.jpg` | Cartaz da seção Reservas | **colocada** |
-| `assets/images/hero-tijolo.jpg` | Fundo do hero e da seção de delivery | falta |
-| `assets/images/hero-madeira.jpg` | Faixa de madeira na base do hero | falta |
-| `assets/images/hero-burger.png` | Hambúrguer do hero (PNG sem fundo) | falta |
+| `assets/images/hero-banner.jpg` | Banner de fundo do hero | **colocada** |
+| `assets/images/hero-tijolo.jpg` | Fundo da seção de delivery | falta |
 | `assets/images/cardapio-topo.jpg` | Topo do cardápio | falta |
 | `assets/images/produto-topo.jpg` | Topo da página de produto | falta |
 | `assets/images/contato-topo.jpg` | Topo do contato | falta |
 | fotos dos produtos | campo `imagem` de cada item do `produtos.json` | falta |
+
+> `hero-banner.jpg` é a versão otimizada de `banner.jpeg` (522 KB → 91 KB,
+> mesmas dimensões). O original foi mantido na pasta como arquivo-mestre; o
+> site usa só a versão otimizada. Se trocar o banner, gere a versão web com
+> qualidade 80, JPEG progressivo.
 
 > O cartaz da Noite do Date tem o texto embutido na imagem ("sexta-feira,
 > casal R$ 99,99, mediante reserva"). Isso está descrito no `alt` para
