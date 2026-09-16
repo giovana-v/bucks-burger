@@ -4,8 +4,8 @@
    Sem dependências: só Node e as funções puras de js/loja.js.
    ============================================================ */
 
-const { Loja } = require('../js/loja.js');
-const { BUSINESS_CONFIG } = require('../js/config.js');
+const { Loja } = require('../public/js/loja.js');
+const { BUSINESS_CONFIG } = require('../public/js/config.js');
 
 let passou = 0, falhou = 0;
 const falhas = [];
@@ -331,7 +331,7 @@ teste('aviso de contaminação cruzada só quando true', () => {
 });
 
 teste('nenhum produto do catálogo tem alérgeno não confirmado', () => {
-  const dados = require('../data/produtos.json');
+  const dados = require('../public/data/produtos.json');
   const comAlergeno = dados.produtos.filter(p => Array.isArray(p.alergenos) && p.alergenos.length);
   igual(comAlergeno.length, 0, 'catálogo não deve publicar alérgeno sem confirmação da cozinha');
 });

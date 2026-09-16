@@ -24,7 +24,7 @@ O cardápio é carregado de `data/produtos.json` via `fetch`, então é preciso
 servir por HTTP (abrir o arquivo com duplo clique não funciona):
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8000 --directory public
 # http://localhost:8000
 ```
 

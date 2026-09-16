@@ -13,17 +13,15 @@ publica sozinho.
 3. Autorize o GitHub e escolha **`giovana-v/bucks-burger`**
    (funciona com repositório privado, sem custo)
 
-> **Atenção à pasta publicada.** O Wrangler publica tudo que está na
-> pasta de assets. Como aqui a pasta é a raiz do repositório, existem
-> dois arquivos versionados que impedem o vazamento do `.git`:
+> **O site fica em `public/`.** A pasta publicada é só ela, então `.git`,
+> `tests/` e a documentação estão fisicamente fora e não há como vazá-los.
 >
-> - **`.assetsignore`** — lista o que não vai para a web
-> - **`wrangler.jsonc`** — se não existir, o build gera uma configuração
->   automática a cada execução e publica a pasta inteira
+> Isso é corretivo: o primeiro deploy publicava a raiz do repositório e
+> deixou `https://SEU-SITE/.git/config` acessível — o histórico completo
+> do repositório privado ficou baixável.
 >
-> **Nunca remova nenhum dos dois.** Sem eles, `https://SEU-SITE/.git/config`
-> fica acessível e o histórico completo do repositório privado pode ser
-> baixado por qualquer pessoa.
+> **Não mude `assets.directory` no `wrangler.jsonc`** e não mova arquivos
+> do site para fora de `public/`.
 
 ## 2. Configurar o build
 
@@ -35,7 +33,7 @@ O site não tem etapa de build. Preencha exatamente assim:
 | Production branch | `main` |
 | Framework preset | **None** |
 | Build command | *(deixe vazio)* |
-| Build output directory | `/` |
+| Build output directory | `public` |
 
 Clique em **Save and Deploy**. O primeiro deploy leva menos de um minuto.
 
