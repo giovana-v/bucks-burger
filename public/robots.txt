@@ -19,10 +19,11 @@ Disallow: /README.md
 Disallow: /TESTES.md
 
 # ------------------------------------------------------------
-# TODO: quando o domínio real estiver configurado
-# (BUSINESS_CONFIG.siteUrl em js/config.js), descomente a linha
-# abaixo trocando SEU-DOMINIO. Sem domínio real, apontar para um
-# sitemap inexistente gera erro no Search Console.
+# TODO: quando houver domínio oficial, copiar
+# modelos/sitemap.template.xml para public/sitemap.xml, trocar
+# SEU-DOMINIO e descomentar a linha abaixo.
+# O modelo fica fora de public/ de propósito: um sitemap com
+# domínio falso no ar gera erro no Search Console.
 #
 # Sitemap: https://SEU-DOMINIO/sitemap.xml
 # ------------------------------------------------------------

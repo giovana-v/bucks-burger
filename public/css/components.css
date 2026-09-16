@@ -740,21 +740,29 @@
    ================================================================== */
 
 /* ---------- Trilho social lateral ---------- */
+/* Trilho social ancorado na BORDA da viewport, fora da coluna de
+   conteúdo — como na referência.
+
+   A versão anterior usava a mesma conta do .container, então nascia
+   exatamente na vertical do texto: em 1280px ambos caíam em 64px e o
+   ícone do Instagram sumia atrás do botão branco do CTA.
+
+   Abaixo de 1360px o container encosta na borda e não sobra faixa
+   livre; lá o hero abre um recuo à esquerda (ver responsive.css). */
 .social-rail {
   position: absolute;
-  /* Mesma conta do .container, para os ícones nascerem na mesma
-     vertical do texto do hero em vez de num recuo fixo. */
-  left: max(var(--gutter), calc(50% - (var(--container) / 2) + var(--gutter)));
-  bottom: 70px;
+  left: clamp(16px, 2vw, 48px);
+  bottom: 72px;
   z-index: 5;
   display: grid;
   justify-items: start;
   gap: 16px;
 }
 .social-rail a {
-  width: 26px; height: 26px;
-  /* alinhado à esquerda: o glifo encosta na mesma linha do texto */
-  display: flex; align-items: center; justify-content: flex-start;
+  /* 40px de alvo: o glifo tem 19px, o resto é área de toque */
+  width: 40px; height: 40px;
+  margin-left: -10px;      /* o glifo continua alinhado à borda */
+  display: flex; align-items: center; justify-content: center;
   color: var(--branco);
   opacity: .8;
   transition: var(--transicao);

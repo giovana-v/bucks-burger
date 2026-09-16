@@ -41,16 +41,25 @@ function iniciarMenu() {
 }
 
 function marcarLinkAtivo() {
-  const atual = location.pathname.split('/').pop() || 'index.html';
+  /* Normaliza para comparar produção e desenvolvimento sob a mesma
+     régua: em produção as URLs são limpas (/cardapio), num servidor
+     estático simples são arquivos (/cardapio.html). */
+  const normalizar = (caminho) => {
+    const semAncora = String(caminho).split('#')[0].split('?')[0];
+    const ultimo = semAncora.replace(/\/+$/, '').split('/').pop();
+    return ultimo.replace(/\.html$/, '') || 'index';
+  };
+
+  const atual = normalizar(location.pathname);
 
   document.querySelectorAll('.nav__link').forEach(link => {
     const href = link.getAttribute('href') || '';
 
-    // "index.html#reservas" aponta para uma seção, não para a página.
-    // Sem esta guarda, Início e Reservas ficavam marcados ao mesmo tempo.
+    // "/#reservas" aponta para uma seção, não para a página. Sem esta
+    // guarda, Início e Reservas ficavam marcados ao mesmo tempo.
     if (href.includes('#')) return;
 
-    if (href === atual) {
+    if (normalizar(href) === atual) {
       link.classList.add('ativo');
       link.setAttribute('aria-current', 'page');
     }

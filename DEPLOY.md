@@ -17,6 +17,13 @@ npx wrangler deploy
 
 Site no ar: **https://bucks-burger.giovana-vitoria-alves-soares10.workers.dev**
 
+Para testar antes de publicar, com o mesmo comportamento da produção
+(URLs limpas, `_headers`, página 404):
+
+```bash
+npx wrangler dev
+```
+
 Para revogar o acesso: dash.cloudflare.com → My Profile → API Tokens,
 ou `npx wrangler logout`.
 

@@ -3,6 +3,13 @@
    ============================================ */
 
 /* ---------- Até 1024px ---------- */
+/* Até 1360px o conteúdo encosta na borda e não há faixa livre para o
+   trilho social. O hero — e só ele — abre espaço à esquerda, mesma
+   técnica que já era usada no mobile. */
+@media (max-width: 1360px) {
+  .hero-v2 .container { padding-left: 80px; }
+}
+
 @media (max-width: 1100px) {
   .carrossel__trilho { grid-auto-columns: calc(33.333% - 16px); }
   .titulo-risco::before { display: none; }

@@ -775,6 +775,73 @@ teste('corrigir o campo limpa a mensagem', () => {
   igual(depois.mensagem, '', 'corrigido deve zerar a mensagem');
 });
 
+
+/* ============================================================ */
+grupo('LINKS INTERNOS — URLs limpas');
+
+// Mesma normalização de marcarLinkAtivo (js/main.js). Mantida aqui em
+// espelho porque a original depende do DOM.
+function normalizarCaminho(caminho) {
+  const semAncora = String(caminho).split('#')[0].split('?')[0];
+  const ultimo = semAncora.replace(/\/+$/, '').split('/').pop();
+  return ultimo.replace(/\.html$/, '') || 'index';
+}
+
+teste('URL limpa e caminho com .html apontam para a mesma página', () => {
+  igual(normalizarCaminho('/cardapio'), normalizarCaminho('/cardapio.html'));
+  igual(normalizarCaminho('/contato'), normalizarCaminho('/contato.html'));
+  igual(normalizarCaminho('/'), normalizarCaminho('/index.html'));
+});
+
+teste('query string e âncora não afetam a identificação da página', () => {
+  igual(normalizarCaminho('/produto?id=5'), 'produto');
+  igual(normalizarCaminho('/produto.html?id=5'), 'produto');
+  igual(normalizarCaminho('/#reservas'), 'index');
+  igual(normalizarCaminho('/cardapio/'), 'cardapio');
+});
+
+teste('páginas diferentes não se confundem', () => {
+  verdadeiro(normalizarCaminho('/cardapio') !== normalizarCaminho('/contato'));
+  verdadeiro(normalizarCaminho('/') !== normalizarCaminho('/produto'));
+});
+
+teste('nenhum link interno do site ainda usa .html', () => {
+  const fs = require('fs');
+  const arquivos = [
+    ...fs.readdirSync('public').filter(f => f.endsWith('.html')).map(f => 'public/' + f),
+    ...fs.readdirSync('public/js').map(f => 'public/js/' + f)
+  ];
+  const sobras = [];
+  for (const arq of arquivos) {
+    const texto = fs.readFileSync(arq, 'utf8');
+    // ignora o que está dentro de comentário HTML
+    const limpo = texto.replace(/<!--[\s\S]*?-->/g, '');
+    for (const m of limpo.match(/href="[^"]*\.html[^"]*"/g) || []) sobras.push(`${arq}: ${m}`);
+  }
+  igual(sobras, [], 'links internos devem usar URL limpa');
+});
+
+teste('o sitemap-modelo não está na pasta publicada', () => {
+  const fs = require('fs');
+  igual(fs.existsSync('public/sitemap.xml'), false,
+    'sitemap com SEU-DOMINIO não pode ir ao ar');
+});
+
+teste('o banner do hero é o WebP, e o JPG antigo saiu', () => {
+  const fs = require('fs');
+  igual(fs.existsSync('public/assets/images/hero-banner.webp'), true);
+  igual(fs.existsSync('public/assets/images/hero-banner.jpg'), false);
+  const html = fs.readFileSync('public/index.html', 'utf8');
+  contem(html, 'hero-banner.webp');
+  naoContem(html, 'hero-banner.jpg');
+});
+
+teste('nenhum arquivo órfão restou em assets/images', () => {
+  const fs = require('fs');
+  const noDisco = fs.readdirSync('public/assets/images');
+  igual(noDisco.includes('.jpg'), false, 'o arquivo sem nome foi removido');
+});
+
 /* ============================================================ */
 console.log(`\n${'='.repeat(52)}`);
 console.log(`  ${passou} passaram   ${falhou} falharam`);

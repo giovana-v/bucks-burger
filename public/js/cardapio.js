@@ -83,14 +83,14 @@ const Cardapio = (() => {
 
     return `
       <article class="card" data-categoria="${esc(p.categoria)}">
-        <a class="card__midia" href="produto.html?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
+        <a class="card__midia" href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
           ${tag}
           <!-- IMAGEM DO PRODUTO: ${esc(p.imagem)} -->
           <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
         </a>
         <div class="card__corpo">
           <h3 class="card__titulo">
-            <a href="produto.html?id=${p.id}">${esc(p.nome)}</a>
+            <a href="/produto?id=${p.id}">${esc(p.nome)}</a>
           </h3>
           <p class="card__desc">${esc(p.descricao)}</p>
           ${htmlAlergenos(p, true)}
@@ -144,7 +144,7 @@ const Cardapio = (() => {
       <div class="dia">
         <span class="dia__rotulo">${DIAS[i]}</span>
         <div class="dia__card">
-          <a href="produto.html?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
+          <a href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
             <!-- IMAGEM DO PRODUTO: ${esc(p.imagem)} -->
             <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
           </a>
@@ -212,7 +212,7 @@ const Cardapio = (() => {
         <div class="estado-vazio estado-vazio--pagina">
           <h2>Produto não encontrado</h2>
           <p>O item que você procura não está mais no cardápio ou o link está incorreto.</p>
-          <a class="btn btn--primario" href="cardapio.html">Ver o cardápio</a>
+          <a class="btn btn--primario" href="/cardapio">Ver o cardápio</a>
         </div>`;
       const titulo = document.getElementById('tituloPagina');
       if (titulo) titulo.textContent = 'Produto não encontrado';

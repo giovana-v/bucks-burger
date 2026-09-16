@@ -24,9 +24,14 @@ O cardápio é carregado de `data/produtos.json` via `fetch`, então é preciso
 servir por HTTP (abrir o arquivo com duplo clique não funciona):
 
 ```bash
-python3 -m http.server 8000 --directory public
-# http://localhost:8000
+npx wrangler dev
+# http://localhost:8787
 ```
+
+Use o `wrangler dev`, não um servidor estático simples: os links
+internos apontam para **URLs limpas** (`/cardapio`, não
+`/cardapio.html`), que só funcionam com o mesmo tratamento de assets
+da produção. Num `python3 -m http.server` a navegação interna dá 404.
 
 Testes das regras de negócio:
 
@@ -222,7 +227,7 @@ O rótulo some sozinho quando há `url` no `style`.
 | --- | --- | --- |
 | `assets/images/logo.jpg` | Logo no header, nas duas faixas do rodapé e favicon | **colocada** |
 | `assets/images/noitedoDate.jpg` | Cartaz da seção Reservas | **colocada** |
-| `assets/images/hero-banner.jpg` | Banner de fundo do hero | **colocada** |
+| `assets/images/hero-banner.webp` | Banner de fundo do hero | **colocada** |
 | `assets/images/hero-tijolo.jpg` | Fundo da seção de delivery | falta |
 | `assets/images/cardapio-topo.jpg` | Topo do cardápio | falta |
 | `assets/images/produto-topo.jpg` | Topo da página de produto | falta |
@@ -231,7 +236,7 @@ O rótulo some sozinho quando há `url` no `style`.
 
 > As imagens são otimizadas antes de entrar: JPEG progressivo, qualidade
 > 80–82, redimensionado para no máximo ~3x o tamanho de exibição.
-> `hero-banner.jpg` veio de um original de 522 KB; `noitedoDate.jpg` de
+> `hero-banner.webp` veio de um original de 522 KB; `noitedoDate.jpg` de
 > 281 KB. Os originais ficam no histórico do git, não na pasta.
 
 > O cartaz da Noite do Date tem o texto embutido na imagem ("sexta-feira,
