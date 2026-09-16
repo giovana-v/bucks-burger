@@ -1150,8 +1150,11 @@
 /* ---------- RESERVAS (faixa dourada) ---------- */
 .reservas {
   position: relative;
+  /* Acima da seção de delivery, que vem depois e também é posicionada:
+     sem isso ela pintaria por cima da parte do cartaz que transborda. */
+  z-index: 2;
   background: var(--dourado);
-  padding: 92px 0;
+  padding: 80px 0;
   border-bottom: 5px solid var(--vermelho);
   /* espaço acima para o cartaz transbordar sem invadir a seção anterior */
   margin-top: 110px;
@@ -1166,20 +1169,28 @@
 /* Cartaz da promoção — sobe para fora da faixa dourada,
    mantendo o recorte da referência. */
 /* O cartaz atravessa a faixa dourada: nasce na seção escura de cima e
-   termina depois da borda de baixo, como a colagem da referência. */
+   termina depois da borda de baixo, como a colagem da referência.
+   
+   POR QUE height:0 — a tentativa óbvia (margens negativas) não funciona:
+   como o cartaz é o item mais alto da linha do grid, a linha cresce para
+   caber nele e o transbordo some. Com altura zero ele deixa de contar
+   para a altura da linha, que passa a ser ditada só pelo texto, e a
+   imagem sobra metade para cima e metade para baixo. */
 .colagem {
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-self: stretch;
-  margin-top: -110px;
-  margin-bottom: -90px;
+  align-self: center;
+  height: 0;
+  margin: 0;
+  position: relative;   /* z-index só vale em elemento posicionado */
   z-index: 2;
 }
 .colagem__cartaz {
   width: 100%;
-  max-width: 340px;
-  height: auto;
-  object-fit: cover;
+  max-width: 400px;
+  height: auto;          /* preserva a proporção: nada de esticar */
+  flex: none;
   border: 6px solid var(--preto);
   border-radius: 4px;
   background: var(--preto-3);
