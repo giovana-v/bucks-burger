@@ -150,15 +150,15 @@
   </div>
 </section>
 
-<!-- ============ HORÁRIOS E UNIDADES ============ -->
+<!-- ============ HORÁRIOS E LOCALIZAÇÃO ============ -->
 <section class="horarios-sec" aria-labelledby="tituloHorarios">
   <div class="container">
     <div class="titulo-risco revelar">
-      <h2 id="tituloHorarios">Horários e Unidades</h2>
+      <h2 id="tituloHorarios">Horários e Localização</h2>
     </div>
 
-    <div class="horarios-grade">
-      <div class="horarios-cols revelar">
+    <div class="horarios-grade revelar">
+      <div class="horarios-cols">
         <div class="bloco-info">
           <h3>Funcionamento</h3>
           <!-- Preenchido por js/main.js a partir de BUSINESS_CONFIG.businessHours -->
@@ -166,18 +166,24 @@
           <p class="status-loja status-loja--bloco" data-status-loja></p>
         </div>
 
-        <div class="bloco-info" data-some-sem-endereco>
+        <div class="bloco-info bloco-info--divisor" data-some-sem-endereco>
           <h3>Estamos em</h3>
-          <p data-endereco></p>
+          <p class="endereco-bairro" data-endereco-bairro></p>
+          <p class="endereco-linha" data-endereco></p>
+          <a class="endereco-rota" data-mapa-link target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Como chegar
+          </a>
         </div>
       </div>
 
-      <div class="mapas revelar" data-some-sem-endereco>
-        <div class="mapa-card">
-          <!-- MAPA: só inserir quando o endereço real estiver em js/config.js -->
-          <div class="ph" data-label="Mapa da loja"></div>
-        </div>
-      </div>
+      <figure class="mapa-card" data-some-sem-endereco>
+        <!-- O src é montado por js/main.js a partir do endereço da config,
+             para não existir endereço escrito em dois lugares. -->
+        <iframe data-mapa-embed title="Mapa da Buck's Burguer"
+                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <figcaption data-endereco-bairro></figcaption>
+      </figure>
     </div>
   </div>
 </section>

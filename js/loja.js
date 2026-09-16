@@ -361,7 +361,8 @@ const Loja = (() => {
     });
 
     return grupos.map(g => ({
-      rotulo: g.dias.length === 1 ? g.dias[0]
+      rotulo: g.dias.length === 7 ? 'Todos os dias'
+            : g.dias.length === 1 ? g.dias[0]
             : g.dias.length === 2 ? `${g.dias[0]} e ${g.dias[1]}`
             : `${g.dias[0]} a ${g.dias[g.dias.length - 1]}`,
       texto: g.texto,
@@ -559,6 +560,29 @@ const Loja = (() => {
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   }
 
+  /** Endereço completo, com CEP. "" quando não configurado. */
+  function enderecoCompleto(address) {
+    const a = address || {};
+    if (!a.street || !a.city) return '';
+    const rua = [a.street, a.number].filter(Boolean).join(', ');
+    const cidade = [a.city, a.state].filter(Boolean).join(' - ');
+    return [rua, a.neighborhood, cidade, a.zipCode].filter(Boolean).join(', ');
+  }
+
+  /** URL do Google Maps para abrir a rota. "" quando não configurado. */
+  function urlMapa(address) {
+    const texto = enderecoCompleto(address);
+    if (!texto) return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
+  }
+
+  /** URL do mapa embutido. Não exige chave de API. */
+  function urlMapaEmbed(address) {
+    const texto = enderecoCompleto(address);
+    if (!texto) return '';
+    return `https://www.google.com/maps?q=${encodeURIComponent(texto)}&z=16&output=embed`;
+  }
+
   /** Endereço da loja em uma linha. "" quando não configurado. */
   function enderecoFormatado(address) {
     const a = address || {};
@@ -576,7 +600,7 @@ const Loja = (() => {
     estaAberto, momentoNoFuso, emMinutos, agruparHorarios,
     lerAlergenos, validarCheckout, PAGAMENTOS,
     montarMensagem, montarUrlWhatsapp,
-    formatarTelefone, enderecoFormatado
+    formatarTelefone, enderecoFormatado, enderecoCompleto, urlMapa, urlMapaEmbed
   };
 })();
 

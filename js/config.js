@@ -27,18 +27,17 @@ const BUSINESS_CONFIG = {
   instagram: "",
 
   /* ---------- Endereço ----------
-     TODO: preencher com o endereço real da loja.
-     Enquanto street/city estiverem vazios, o site não exibe
-     endereço nem link de mapa em lugar nenhum.               */
+     Confirmado pela proprietária em 16/09/2026.               */
   address: {
-    street: "",
-    number: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    // Coordenadas da loja — necessárias para calcular distância.
-    // TODO: preencher { lat, lng } se quiser frete por distância.
+    street: "R. Eliza Laurinda da Silva",
+    number: "399",
+    neighborhood: "Jardim Santana",
+    city: "Hortolândia",
+    state: "SP",
+    zipCode: "13140-252",
+    // Coordenadas da loja — necessárias para calcular frete por
+    // distância. O mapa não precisa delas (usa o endereço em texto).
+    // TODO: preencher { lat, lng } se quiser frete por raio.
     coords: null
   },
 
@@ -57,20 +56,20 @@ const BUSINESS_CONFIG = {
   /* ---------- Horário de funcionamento ----------
      timeZone fixo para não depender do relógio do visitante.
      null           = não abre nesse dia.
-     close: null    = horário de fechamento AINDA NÃO CONFIRMADO.
-                      O site trata o dia como aberto a partir do
-                      "open" e sinaliza a pendência, em vez de
-                      inventar um horário.
-     TODO: confirmar os horários de fechamento de cada dia.    */
+     close menor que open = o turno vira a madrugada (18:30 -> 01:00
+                      do dia seguinte). O site entende isso sozinho.
+
+     Confirmado pela proprietária em 16/09/2026: abre todos os dias,
+     das 18:30 à 01:00.                                        */
   businessHours: {
     timeZone: "America/Sao_Paulo",
-    monday:    null,                          // confirmado: não abre
-    tuesday:   { open: "18:00", close: null }, // TODO: confirmar fechamento
-    wednesday: { open: "18:00", close: null }, // TODO: confirmar fechamento
-    thursday:  { open: "18:00", close: null }, // TODO: confirmar fechamento
-    friday:    { open: "18:00", close: null }, // TODO: confirmar fechamento
-    saturday:  { open: "18:00", close: null }, // TODO: confirmar fechamento
-    sunday:    { open: "18:00", close: null }  // TODO: confirmar fechamento
+    monday:    { open: "18:30", close: "01:00" },
+    tuesday:   { open: "18:30", close: "01:00" },
+    wednesday: { open: "18:30", close: "01:00" },
+    thursday:  { open: "18:30", close: "01:00" },
+    friday:    { open: "18:30", close: "01:00" },
+    saturday:  { open: "18:30", close: "01:00" },
+    sunday:    { open: "18:30", close: "01:00" }
   },
 
   /* ---------- Entrega ----------

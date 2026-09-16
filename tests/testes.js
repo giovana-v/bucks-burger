@@ -204,42 +204,38 @@ const H = BUSINESS_CONFIG.businessHours;
 // 2026-09-14 é uma segunda-feira.
 const emBrasilia = (iso) => new Date(iso); // ISO com Z; a função converte para o fuso
 
-teste('segunda-feira: fechado o dia inteiro', () => {
-  const manha = Loja.estaAberto(H, emBrasilia('2026-09-14T13:00:00Z')); // 10h BRT
-  const noite = Loja.estaAberto(H, emBrasilia('2026-09-14T23:00:00Z')); // 20h BRT
-  igual(manha.aberto, false);
-  igual(noite.aberto, false);
-  contem(noite.motivo, 'segundas-feiras');
-});
-
-teste('segunda-feira informa a próxima abertura', () => {
-  const r = Loja.estaAberto(H, emBrasilia('2026-09-14T23:00:00Z'));
-  igual(r.proximaAbertura, 'amanhã às 18:00');
-});
-
-teste('terça às 17h (BRT): ainda fechado', () => {
-  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T20:00:00Z'));
+teste('antes de abrir (17h BRT): fechado, informando a abertura', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-16T20:00:00Z'));
   igual(r.aberto, false);
-  contem(r.motivo, 'Abrimos hoje às 18:00');
-  igual(r.proximaAbertura, 'hoje às 18:00');
+  contem(r.motivo, 'Abrimos hoje às 18:30');
+  igual(r.proximaAbertura, 'hoje às 18:30');
 });
 
-teste('terça às 19h (BRT): aberto', () => {
-  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T22:00:00Z'));
-  igual(r.aberto, true);
+teste('no horário de abertura (18:30 BRT): aberto', () => {
+  igual(Loja.estaAberto(H, emBrasilia('2026-09-16T21:30:00Z')).aberto, true);
+});
+
+teste('turno vira a madrugada: 00:30 ainda está aberto', () => {
+  igual(Loja.estaAberto(H, emBrasilia('2026-09-17T03:30:00Z')).aberto, true);
+});
+
+teste('01:30 já fechou', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-17T04:30:00Z'));
+  igual(r.aberto, false);
+  contem(r.motivo, 'Abrimos hoje às 18:30');
 });
 
 teste('usa o fuso da loja, não o do visitante', () => {
-  // 2026-09-15T02:00Z = ainda segunda 23h em Brasília
-  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T02:00:00Z'));
-  igual(r.aberto, false);
-  contem(r.motivo, 'segundas-feiras');
+  // 2026-09-16T02:00Z = 23h de 15/09 em Brasília, dentro do expediente
+  igual(Loja.estaAberto(H, emBrasilia('2026-09-16T02:00:00Z')).aberto, true);
+  // 2026-09-16T12:00Z = 09h em Brasília, fora do expediente
+  igual(Loja.estaAberto(H, emBrasilia('2026-09-16T12:00:00Z')).aberto, false);
 });
 
-teste('fechamento não confirmado é sinalizado, não inventado', () => {
-  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T22:00:00Z'));
-  igual(r.fechamentoIndefinido, true);
-  igual(r.configuracaoIncompleta, true);
+teste('com todos os horários confirmados, não há pendência', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-16T23:00:00Z'));
+  igual(r.fechamentoIndefinido, false);
+  igual(r.configuracaoIncompleta, false);
 });
 
 teste('com fechamento configurado, respeita o encerramento', () => {
@@ -268,12 +264,10 @@ teste('sem configuração de horário, não afirma que está aberto', () => {
 /* ============================================================ */
 grupo('HORÁRIOS AGRUPADOS (rodapé)');
 
-teste('agrupa dias consecutivos com o mesmo horário', () => {
+teste('sete dias iguais viram uma linha "Todos os dias"', () => {
   const g = Loja.agruparHorarios(BUSINESS_CONFIG.businessHours);
-  igual(g.length, 2, 'sete dias devem virar duas linhas');
-  igual(g[0], { rotulo: 'Segunda', texto: 'Fechado', fechado: true });
-  igual(g[1].rotulo, 'Terça a Domingo');
-  contem(g[1].texto, 'a partir das 18:00');
+  igual(g.length, 1);
+  igual(g[0], { rotulo: 'Todos os dias', texto: '18:30 às 01:00', fechado: false });
 });
 
 teste('dois dias seguidos usam "e", tres ou mais usam "a"', () => {
@@ -300,7 +294,8 @@ teste('nao inventa fechamento quando close e null', () => {
 teste('sem configuracao, todos os dias saem como fechado', () => {
   const g = Loja.agruparHorarios(null);
   igual(g.length, 1);
-  igual(g[0].rotulo, 'Segunda a Domingo');
+  igual(g[0].rotulo, 'Todos os dias');
+  igual(g[0].texto, 'Fechado');
   igual(g[0].fechado, true);
 });
 
@@ -548,10 +543,27 @@ teste('aceita número com máscara e recusa número vazio', () => {
 /* ============================================================ */
 grupo('DADOS COMERCIAIS AUSENTES');
 
-teste('endereço vazio não gera texto', () => {
+teste('endereço vazio não gera texto nem link de mapa', () => {
   igual(Loja.enderecoFormatado({}), '');
-  igual(Loja.enderecoFormatado(BUSINESS_CONFIG.address), '');
   igual(Loja.enderecoFormatado(null), '');
+  igual(Loja.enderecoCompleto({}), '');
+  igual(Loja.urlMapa({}), '');
+  igual(Loja.urlMapaEmbed(null), '');
+});
+
+teste('endereço configurado gera texto completo e mapa', () => {
+  const a = BUSINESS_CONFIG.address;
+  const completo = Loja.enderecoCompleto(a);
+  contem(completo, 'R. Eliza Laurinda da Silva, 399');
+  contem(completo, 'Jardim Santana');
+  contem(completo, 'Hortolândia - SP');
+  contem(completo, '13140-252');
+
+  contem(Loja.urlMapa(a), 'google.com/maps/search/');
+  contem(Loja.urlMapaEmbed(a), 'output=embed');
+  // o endereço precisa ir codificado, sem espaço cru na URL
+  naoContem(Loja.urlMapa(a), ' ');
+  naoContem(Loja.urlMapaEmbed(a), ' ');
 });
 
 teste('endereço preenchido gera uma linha legível', () => {
@@ -565,7 +577,6 @@ teste('a configuração não publica contatos não confirmados', () => {
   igual(BUSINESS_CONFIG.phone, '');
   igual(BUSINESS_CONFIG.email, '');
   igual(BUSINESS_CONFIG.instagram, '');
-  igual(Loja.enderecoFormatado(BUSINESS_CONFIG.address), '');
   verdadeiro(BUSINESS_CONFIG.whatsapp.length > 10, 'o WhatsApp confirmado deve continuar presente');
 });
 

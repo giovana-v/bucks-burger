@@ -76,24 +76,32 @@ address: {
 
 Enquanto `street` e `city` estiverem vazios, **somem** do site: o bloco
 "Estamos em" da home, o mapa e o bloco de endereço da página de contato.
-`coords` só é necessário se você quiser calcular frete por distância.
+
+Com o endereço preenchido, o site monta sozinho o texto completo, o link
+"Como chegar" e o **mapa embutido do Google Maps** — sem chave de API e
+sem endereço escrito no HTML. Para trocar de endereço basta mexer aqui.
+
+`coords` continua opcional: só é necessário para calcular frete por
+distância, não para o mapa.
 
 ### Horários
 
 ```js
 businessHours: {
   timeZone: "America/Sao_Paulo",
-  monday:    null,                           // não abre
-  tuesday:   { open: "18:00", close: null }, // fechamento a confirmar
+  monday: { open: "18:30", close: "01:00" },
   ...
 }
 ```
 
 - `null` no dia = fechado o dia inteiro.
-- `close: null` = **horário de fechamento ainda não confirmado**. O site
-  mostra "a partir das 18:00" e considera a loja aberta depois desse
-  horário, em vez de inventar um encerramento.
-- Turno que vira a madrugada funciona: `{ open: "18:00", close: "02:00" }`.
+- `close: null` = **fechamento ainda não confirmado**. O site mostra
+  "a partir das 18:30" e sinaliza a pendência, em vez de inventar.
+- **Turno que vira a madrugada funciona**: `close` menor que `open`
+  (como `18:30 → 01:00`) é entendido como o dia seguinte.
+- Dias consecutivos com o mesmo horário são agrupados sozinhos na tela:
+  sete dias iguais viram "Todos os dias"; variações viram
+  "Terça a Quinta", "Sexta e Sábado" etc.
 
 Quando a loja está fechada, o botão de finalizar fica desabilitado e o
 carrinho explica o motivo e a próxima abertura.

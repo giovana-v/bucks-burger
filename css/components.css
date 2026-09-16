@@ -1326,15 +1326,47 @@
 
 .horarios-grade {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 56px;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 48px;
   align-items: start;
 }
+/* Funcionamento | Estamos em, com o fio vertical da referência */
 .horarios-cols {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 34px;
 }
+.bloco-info--divisor {
+  padding-left: 34px;
+  border-left: 1px solid rgba(255,255,255,.16);
+}
+
+.endereco-bairro {
+  margin: 0 0 4px;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--dourado);
+}
+.endereco-linha {
+  margin: 0 0 14px;
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+.endereco-rota {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dourado);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: var(--transicao);
+}
+.endereco-rota:hover { color: var(--branco); }
 .bloco-info h4 {
   font-family: var(--fonte-texto);
   font-weight: 800;
@@ -1352,22 +1384,29 @@
 .bloco-info p strong { color: var(--branco); }
 .bloco-info__fechado { color: var(--texto-fraco) !important; }
 
-.mapas {
+/* Cartão do mapa: proporção controlada para não esticar na coluna */
+.mapa-card {
+  margin: 0;
   display: grid;
-  /* auto-fit: funciona com uma unidade só ou com várias */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
+  gap: 10px;
 }
-.mapa-card { display: grid; gap: 10px; }
-.mapa-card .ph {
-  aspect-ratio: 1/1.05;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 4px;
+.mapa-card iframe {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 340px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 6px;
+  /* O mapa do Google vem claro; escurecer integra ao site sem
+     prejudicar a leitura das ruas. */
+  filter: grayscale(.35) brightness(.88) contrast(1.05);
+  transition: var(--transicao);
 }
-.mapa-card span {
+.mapa-card iframe:hover { filter: none; }
+.mapa-card figcaption {
   text-align: center;
   font-size: .76rem;
   font-weight: 700;
+  letter-spacing: .6px;
   color: var(--dourado);
 }
 
@@ -1659,10 +1698,10 @@ body.modal-aberto { overflow: hidden; }
   color: var(--texto-fraco);
 }
 .status-loja--bloco {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  margin: 0 0 14px;
-  padding: 10px 14px;
+  margin: 16px 0 0;
+  padding: 8px 14px;
   background: var(--preto-3);
   border-left: 3px solid currentColor;
   border-radius: var(--radius-sm);

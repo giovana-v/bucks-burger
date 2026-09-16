@@ -125,7 +125,8 @@
   .fita, .fita__lista { display: none; }
   .social-rail { bottom: 24px; }
 
-  .horarios-grade { grid-template-columns: 1fr; gap: 40px; }
+  .horarios-grade { grid-template-columns: 1fr; gap: 36px; }
+  .mapa-card iframe { max-height: 300px; }
 
   .reservas { margin-top: 140px; }
   .reservas__inner { grid-template-columns: 1fr; gap: 32px; }
@@ -167,7 +168,13 @@
   .carrossel__trilho { grid-auto-columns: 78%; gap: 16px; }
 
   .horarios-cols { grid-template-columns: 1fr; gap: 24px; }
-  .mapas { gap: 12px; }
+  /* Empilhado, o fio vertical vira um fio horizontal */
+  .bloco-info--divisor {
+    padding: 22px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255,255,255,.16);
+  }
+  .mapa-card iframe { aspect-ratio: 4 / 3; max-height: 260px; }
 
   .reservas { margin-top: 120px; padding: 48px 0 56px; }
   .colagem { margin: -90px 0 0; }

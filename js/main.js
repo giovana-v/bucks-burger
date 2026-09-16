@@ -182,20 +182,36 @@ function renderizarHorarios() {
   });
 }
 
-/** Endereço da loja — some inteiro quando não há dado. */
+/** Endereço, bairro, link de rota e mapa — tudo a partir de BUSINESS_CONFIG. */
 function renderizarEndereco() {
-  const texto = Loja.enderecoFormatado(BUSINESS_CONFIG.address);
+  const a = BUSINESS_CONFIG.address;
+  const linha = Loja.enderecoCompleto(a);
 
-  document.querySelectorAll('[data-endereco]').forEach(alvo => {
-    if (!texto) {
-      // Sem endereço confirmado, escondemos a seção inteira
-      const secao = alvo.closest('[data-some-sem-endereco]');
-      if (secao) { secao.hidden = true; return; }
-      alvo.textContent = 'Endereço em breve';
-      alvo.classList.add('dado-indisponivel');
-      return;
-    }
-    alvo.textContent = texto;
+  // Sem endereço confirmado, escondemos a seção inteira em vez de
+  // mostrar um texto vazio ou inventado.
+  if (!linha) {
+    document.querySelectorAll('[data-some-sem-endereco]').forEach(el => { el.hidden = true; });
+    return;
+  }
+
+  document.querySelectorAll('[data-endereco]').forEach(el => {
+    el.textContent = linha;
+  });
+
+  document.querySelectorAll('[data-endereco-bairro]').forEach(el => {
+    el.textContent = [a.neighborhood, a.city].filter(Boolean).join(' — ');
+  });
+
+  const rota = Loja.urlMapa(a);
+  document.querySelectorAll('[data-mapa-link]').forEach(el => {
+    if (!rota) { el.hidden = true; return; }
+    el.href = rota;
+  });
+
+  const embed = Loja.urlMapaEmbed(a);
+  document.querySelectorAll('[data-mapa-embed]').forEach(el => {
+    if (!embed) { el.closest('.mapa-card')?.remove(); return; }
+    el.src = embed;
   });
 }
 
