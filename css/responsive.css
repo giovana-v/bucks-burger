@@ -21,11 +21,11 @@
   .social-rail { bottom: 24px; }
 
   .horarios-grade { grid-template-columns: 1fr; gap: 36px; }
-  .mapa-card iframe { max-height: 300px; }
+  .mapa-card iframe { max-height: 250px; }
 
-  .reservas { margin-top: 170px; padding: 80px 0; }
+  .reservas { margin-top: 130px; padding: 76px 0; }
   .reservas__inner { grid-template-columns: 1fr; gap: 28px; justify-items: center; }
-  .colagem { margin: -170px 0 8px; }
+  .colagem { margin: -130px 0 8px; }
 
   .delivery__grade { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; }
 

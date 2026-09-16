@@ -1036,7 +1036,7 @@
 .dia__preco:hover { background: var(--vermelho); color: var(--branco); }
 
 /* ---------- HORÁRIOS E UNIDADES ---------- */
-.horarios-sec { padding: 90px 0; }
+.horarios-sec { padding: 88px 0 64px; }
 .titulo-risco {
   position: relative;
   display: flex;
@@ -1064,8 +1064,8 @@
 
 .horarios-grade {
   display: grid;
-  grid-template-columns: 1.15fr .85fr;
-  gap: 48px;
+  grid-template-columns: 1.25fr .75fr;
+  gap: 44px;
   align-items: start;
 }
 /* Funcionamento | Estamos em, com o fio vertical da referência */
@@ -1129,8 +1129,8 @@
 }
 .mapa-card iframe {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  max-height: 340px;
+  aspect-ratio: 16 / 11;
+  max-height: 270px;
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 6px;
   /* O mapa do Google vem claro; escurecer integra ao site sem
@@ -1154,7 +1154,7 @@
   padding: 92px 0;
   border-bottom: 5px solid var(--vermelho);
   /* espaço acima para o cartaz transbordar sem invadir a seção anterior */
-  margin-top: 150px;
+  margin-top: 110px;
   /* sem overflow:hidden — é o transbordo que faz o efeito da referência */
 }
 .reservas__inner {
@@ -1171,8 +1171,8 @@
   display: flex;
   justify-content: center;
   align-self: stretch;
-  margin-top: -150px;
-  margin-bottom: -110px;
+  margin-top: -110px;
+  margin-bottom: -90px;
   z-index: 2;
 }
 .colagem__cartaz {
