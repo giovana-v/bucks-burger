@@ -13,6 +13,11 @@ servindo a versão antiga e a mudança parece não ter sido feita:
 sed -i 's/?v=7/?v=8/g' *.html
 ```
 
+## Publicar
+
+Ver **[DEPLOY.md](DEPLOY.md)** — Cloudflare Pages, sem build, deploy a
+cada push no `main`.
+
 ## Rodar
 
 O cardápio é carregado de `data/produtos.json` via `fetch`, então é preciso
