@@ -340,7 +340,7 @@ teste('nenhum produto do catálogo tem alérgeno não confirmado', () => {
 grupo('CHECKOUT — validação dos campos');
 
 const baseValida = {
-  nome: 'Maria Silva', telefone: '(19) 99193-8590', tipoPedido: 'retirada',
+  nome: 'Maria Silva', tipoPedido: 'retirada',
   pagamento: 'pix', observacaoGeral: ''
 };
 const ctxOk = { temItens: true, total: 4290, lojaFechada: false, abaixoDoMinimo: false };
@@ -356,9 +356,10 @@ teste('nome incompleto é recusado', () => {
   igual(Loja.validarCheckout({ ...baseValida, nome: 'Maria' }, ctxOk).erros.nome, 'Informe nome e sobrenome.');
 });
 
-teste('telefone precisa de DDD', () => {
-  igual(Loja.validarCheckout({ ...baseValida, telefone: '99193-8590' }, ctxOk).erros.telefone !== undefined, true);
-  igual(Loja.validarCheckout({ ...baseValida, telefone: '(19) 3333-4444' }, ctxOk).erros.telefone, undefined);
+teste('telefone não é mais pedido no checkout', () => {
+  const r = Loja.validarCheckout(baseValida, ctxOk);
+  igual(r.valido, true);
+  igual(r.erros.telefone, undefined);
 });
 
 teste('RETIRADA não exige endereço', () => {
@@ -437,7 +438,7 @@ teste('pedido de ENTREGA monta todos os blocos na ordem', () => {
   const msg = Loja.montarMensagem({
     itens: itensPedido,
     cliente: {
-      nome: 'Maria Silva', telefone: '(19) 99193-8590', tipoPedido: 'entrega',
+      nome: 'Maria Silva', tipoPedido: 'entrega',
       rua: 'Rua Exemplo', numero: '100', bairro: 'Centro',
       complemento: 'Apto 12', referencia: 'Portão azul',
       pagamento: 'dinheiro', trocoParaCentavos: 15000, semTroco: false,
@@ -458,11 +459,52 @@ teste('pedido de ENTREGA monta todos os blocos na ordem', () => {
   contem(msg, 'Troco para:');
 });
 
+
+teste('formato bate exatamente com o modelo combinado', () => {
+  const item = { id: 2, nome: "Buck's Classic", precoCentavos: 3290, qtd: 1, adicionais: [], obs: '' };
+  const totais = Loja.calcularTotais([item], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  const msg = Loja.montarMensagem({
+    itens: [item],
+    cliente: { nome: 'Nome da Pessoa', tipoPedido: 'retirada', pagamento: 'pix',
+               observacaoGeral: 'asdasdasdasd' },
+    totais, loja: "Buck's Burguer"
+  });
+
+  const esperado = [
+    "*NOVO PEDIDO — BUCK'S BURGUER*", '',
+    '*CLIENTE*', 'Nome: Nome da Pessoa', '',
+    '*TIPO DO PEDIDO*', 'Retirada no local', '',
+    '*ITENS DO PEDIDO*', '',
+    "*1x Buck's Classic*", `Valor: ${Loja.formatarMoeda(3290)}`, '',
+    '────────────────', '*RESUMO DO PEDIDO*', '',
+    `Subtotal: ${Loja.formatarMoeda(3290)}`,
+    `*TOTAL: ${Loja.formatarMoeda(3290)}*`,
+    '────────────────', '',
+    '*PAGAMENTO*', 'Forma: PIX', '',
+    '*OBSERVAÇÃO GERAL*', 'asdasdasdasd', '',
+    "Pedido enviado pelo site da Buck's Burguer.", '',
+    '*Aguarde a confirmação da nossa equipe pelo WhatsApp.*'
+  ].join('\n');
+
+  igual(msg, esperado, 'a mensagem deve sair linha a linha como o modelo');
+});
+
+teste('observação vazia não vira linha solta', () => {
+  const item = { id: 2, nome: 'X', precoCentavos: 1000, qtd: 1, adicionais: [], obs: '' };
+  const totais = Loja.calcularTotais([item], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  const msg = Loja.montarMensagem({
+    itens: [item], cliente: { nome: 'A B', tipoPedido: 'retirada', pagamento: 'pix' }, totais
+  });
+  naoContem(msg, 'Observação:');
+  naoContem(msg, 'Adicionais:');
+  naoContem(msg, 'OBSERVAÇÃO GERAL');
+});
+
 teste('nunca envia "undefined" nem campo vazio', () => {
   const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
   const msg = Loja.montarMensagem({
     itens: [burger()],
-    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada', pagamento: 'pix' },
+    cliente: { nome: 'João Souza', tipoPedido: 'retirada', pagamento: 'pix' },
     totais
   });
   naoContem(msg, 'undefined');
@@ -477,19 +519,19 @@ teste('RETIRADA não inclui bloco de endereço nem taxa', () => {
   const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
   const msg = Loja.montarMensagem({
     itens: [burger()],
-    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada', pagamento: 'pix' },
+    cliente: { nome: 'João Souza', tipoPedido: 'retirada', pagamento: 'pix' },
     totais
   });
   naoContem(msg, 'ENDEREÇO');
   naoContem(msg, 'Taxa de entrega');
-  contem(msg, 'Retirada');
+  contem(msg, 'Retirada no local');
 });
 
 teste('"não preciso de troco" aparece no lugar do valor', () => {
   const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
   const msg = Loja.montarMensagem({
     itens: [burger()],
-    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada',
+    cliente: { nome: 'João Souza', tipoPedido: 'retirada',
                pagamento: 'dinheiro', semTroco: true },
     totais
   });
@@ -501,12 +543,12 @@ teste('taxa indeterminada vira total parcial declarado', () => {
   const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'entrega' });
   const msg = Loja.montarMensagem({
     itens: [burger()],
-    cliente: { nome: 'Ana Lima', telefone: '(19) 99999-9999', tipoPedido: 'entrega',
+    cliente: { nome: 'Ana Lima', tipoPedido: 'entrega',
                rua: 'Rua X', numero: '1', bairro: 'Centro', pagamento: 'pix' },
     totais
   });
   contem(msg, 'A combinar com a loja');
-  contem(msg, 'Total parcial');
+  contem(msg, 'TOTAL PARCIAL');
 });
 
 teste('os valores da mensagem batem com os do carrinho', () => {
@@ -514,7 +556,7 @@ teste('os valores da mensagem batem com os do carrinho', () => {
   const totais = Loja.calcularTotais(itensPedido, cfg, { tipoPedido: 'entrega', bairro: 'centro' });
   const msg = Loja.montarMensagem({
     itens: itensPedido,
-    cliente: { nome: 'Ana Lima', telefone: '(19) 9', tipoPedido: 'entrega',
+    cliente: { nome: 'Ana Lima', tipoPedido: 'entrega',
                rua: 'R', numero: '1', bairro: 'Centro', pagamento: 'pix' },
     totais
   });

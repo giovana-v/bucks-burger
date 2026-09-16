@@ -19,8 +19,8 @@ O que está coberto:
 | Entrega | retirada sem taxa, taxa indeterminada sem regras, regra por bairro, regra por CEP, frete grátis só com distância medida, Haversine, total com taxa, total parcial, pedido mínimo |
 | Horário | segunda fechada, antes de abrir, depois de abrir, fuso da loja vs. do visitante, fechamento não confirmado, turno que vira a madrugada, configuração ausente |
 | Alérgenos | produto sem o campo, produto com lista, lista vazia, contaminação cruzada, catálogo sem alérgeno não confirmado |
-| Checkout | retirada válida, nome incompleto, telefone sem DDD, endereço só na entrega, dinheiro com/sem troco, troco menor que o total, carrinho vazio, loja fechada, abaixo do mínimo |
-| Mensagem | todos os blocos, ausência de `undefined`, retirada sem endereço, "não preciso de troco", total parcial, valores idênticos aos do carrinho, `encodeURIComponent` |
+| Checkout | retirada válida, nome incompleto, telefone não exigido, endereço só na entrega, dinheiro com/sem troco, troco menor que o total, carrinho vazio, loja fechada, abaixo do mínimo |
+| Mensagem | **formato conferido linha a linha contra o modelo**, todos os blocos, ausência de `undefined` e de telefone, retirada sem endereço, observação vazia não vira linha solta, "não preciso de troco", total parcial, valores idênticos aos do carrinho, `encodeURIComponent` |
 | Dados comerciais | endereço vazio não vira texto, contatos não confirmados ausentes, máscara de telefone |
 
 ## 2. Verificações estáticas executadas
@@ -58,6 +58,7 @@ python3 -m http.server 8000
 - [ ] Selecionar **Dinheiro** → o campo de troco aparece; PIX/cartão → some.
 - [ ] Marcar "Não preciso de troco" → o campo de valor some.
 - [ ] Enviar com campos vazios → erros aparecem **junto de cada campo**, e o que já foi digitado permanece.
+- [ ] Não existe campo de telefone; a nota explicando o porquê aparece sob o nome.
 - [ ] Informar troco menor que o total → erro específico com o valor mínimo.
 - [ ] Enviar válido → abre o WhatsApp com a mensagem formatada.
 - [ ] Conferir que os valores da mensagem batem com os do resumo na tela.

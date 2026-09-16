@@ -418,10 +418,8 @@ const Loja = (() => {
       erros.nome = 'Informe nome e sobrenome.';
     }
 
-    const tel = v('telefone').replace(/\D/g, '');
-    if (tel.length < 10 || tel.length > 11) {
-      erros.telefone = 'Informe um telefone com DDD.';
-    }
+    // O telefone não é pedido: o pedido chega pelo próprio WhatsApp
+    // da cliente, então o contato já vem junto da mensagem.
 
     if (!['entrega', 'retirada'].includes(v('tipoPedido'))) {
       erros.tipoPedido = 'Escolha entrega ou retirada.';
@@ -461,36 +459,45 @@ const Loja = (() => {
 
   /* ================= MENSAGEM DO WHATSAPP ================= */
 
-  /** Junta linhas ignorando vazios, para nunca sair "undefined". */
-  const linhas = (...partes) => partes.filter(p => p !== null && p !== undefined && p !== '').join('\n');
+  /**
+   * Junta linhas. Convenção:
+   *   null / undefined -> a linha some (campo vazio nunca é enviado)
+   *   ''               -> linha em branco proposital, que separa blocos
+   */
+  const linhas = (...partes) => partes.filter(p => p !== null && p !== undefined).join('\n');
+
+  const REGUA = '────────────────';
 
   /**
-   * Monta a mensagem do pedido. Função pura: recebe tudo pronto.
+   * Monta a mensagem do pedido no formato combinado.
+   * Função pura: recebe tudo pronto, inclusive o nome da loja.
+   * Usa negrito do WhatsApp (*texto*) nos títulos.
    */
-  function montarMensagem({ itens, cliente, totais }) {
+  function montarMensagem({ itens, cliente, totais, loja = "Buck's Burguer" }) {
     const c = cliente || {};
     const t = totais || {};
 
+    /* ----- Endereço (só entrega) ----- */
     const blocoEndereco = c.tipoPedido === 'entrega' ? linhas(
       '',
-      'ENDEREÇO',
-      linhas(
-        `${c.rua}, ${c.numero}`,
-        c.complemento ? `Complemento: ${c.complemento}` : null,
-        `Bairro: ${c.bairro}`,
-        c.referencia ? `Referência: ${c.referencia}` : null
-      )
-    ) : '';
+      '*ENDEREÇO*',
+      `${c.rua}, ${c.numero}`,
+      c.complemento ? `Complemento: ${c.complemento}` : null,
+      `Bairro: ${c.bairro}`,
+      c.referencia ? `Referência: ${c.referencia}` : null
+    ) : null;
 
+    /* ----- Itens, separados por linha em branco ----- */
     const blocoItens = (itens || []).map(item => linhas(
-      `${item.qtd}x ${item.nome}`,
+      `*${item.qtd}x ${item.nome}*`,
+      `Valor: ${formatarMoeda(precoItem(item))}`,
       (item.adicionais || []).length
         ? `Adicionais: ${item.adicionais.map(a => a.nome).join(', ')}`
         : null,
-      item.obs ? `Observação: ${item.obs}` : null,
-      `Subtotal: ${formatarMoeda(precoItem(item))}`
+      item.obs ? `Observação: ${item.obs}` : null
     )).join('\n\n');
 
+    /* ----- Resumo ----- */
     const taxaTexto = t.taxa
       ? (t.taxa.centavos === null ? t.taxa.rotulo
         : t.taxa.gratis ? 'Grátis' : formatarMoeda(t.taxa.centavos))
@@ -498,47 +505,56 @@ const Loja = (() => {
 
     const blocoResumo = linhas(
       '',
-      'RESUMO',
+      REGUA,
+      '*RESUMO DO PEDIDO*',
+      '',
       `Subtotal: ${formatarMoeda(t.subtotal)}`,
       c.tipoPedido === 'entrega' && taxaTexto ? `Taxa de entrega: ${taxaTexto}` : null,
       t.totalParcial
-        ? `Total parcial: ${formatarMoeda(t.total)} (+ taxa de entrega a confirmar)`
-        : `Total: ${formatarMoeda(t.total)}`
+        ? `*TOTAL PARCIAL: ${formatarMoeda(t.total)}*\n_A taxa de entrega será confirmada pela loja._`
+        : `*TOTAL: ${formatarMoeda(t.total)}*`,
+      REGUA
     );
 
+    /* ----- Pagamento ----- */
     const troco = c.pagamento === 'dinheiro'
       ? (c.semTroco ? 'Não precisa de troco' : `Troco para: ${formatarMoeda(c.trocoParaCentavos)}`)
       : null;
 
     const blocoPagamento = linhas(
       '',
-      'PAGAMENTO',
+      '*PAGAMENTO*',
       `Forma: ${PAGAMENTOS[c.pagamento] || c.pagamento}`,
       troco
     );
 
+    /* ----- Observação geral (só se preenchida) ----- */
     const blocoObs = c.observacaoGeral ? linhas(
       '',
-      'OBSERVAÇÃO GERAL',
+      '*OBSERVAÇÃO GERAL*',
       c.observacaoGeral
-    ) : '';
+    ) : null;
 
     return linhas(
-      'NOVO PEDIDO',
+      `*NOVO PEDIDO — ${loja.toUpperCase()}*`,
       '',
-      'CLIENTE',
+      '*CLIENTE*',
       `Nome: ${c.nome}`,
-      `Telefone: ${c.telefone}`,
       '',
-      'TIPO DO PEDIDO',
-      `${c.tipoPedido === 'entrega' ? 'Entrega' : 'Retirada'}`,
+      '*TIPO DO PEDIDO*',
+      c.tipoPedido === 'entrega' ? 'Entrega' : 'Retirada no local',
       blocoEndereco,
       '',
-      'ITENS',
+      '*ITENS DO PEDIDO*',
+      '',
       blocoItens,
       blocoResumo,
       blocoPagamento,
-      blocoObs
+      blocoObs,
+      '',
+      `Pedido enviado pelo site da ${loja}.`,
+      '',
+      '*Aguarde a confirmação da nossa equipe pelo WhatsApp.*'
     );
   }
 

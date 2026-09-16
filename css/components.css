@@ -2113,3 +2113,15 @@ body.modal-aberto { overflow: hidden; }
   gap: 14px;
   margin-top: 30px;
 }
+
+/* Nota explicativa dentro do checkout */
+.checkout__nota {
+  margin: 0;
+  padding: 11px 13px;
+  background: rgba(217,169,40,.08);
+  border-left: 3px solid var(--dourado);
+  border-radius: 0 4px 4px 0;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}

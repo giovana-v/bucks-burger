@@ -232,7 +232,11 @@ Anton nos títulos, Caveat nos manuscritos, Montserrat nos textos e preços.
 
 ## Privacidade
 
-Os dados do checkout (nome, telefone, endereço) ficam **apenas em memória**
+Os dados do checkout (nome e, na entrega, endereço) ficam **apenas em memória**
 e no formulário durante o preenchimento. Não vão para `localStorage`, não são
 enviados a terceiros e só seguem para o WhatsApp da loja por ação explícita
 do cliente. O `localStorage` guarda somente o carrinho em montagem.
+
+O checkout **não pede telefone**: o pedido é enviado pelo WhatsApp da
+própria cliente, então a loja já responde na mesma conversa. É um dado a
+menos coletado e um campo a menos para preencher.

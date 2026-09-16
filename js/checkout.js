@@ -29,7 +29,7 @@ const Checkout = (() => {
         <p class="checkout__erro-geral" id="checkoutErroGeral" role="alert" hidden></p>
 
         <fieldset class="checkout__bloco">
-          <legend>Seus dados</legend>
+          <legend>Seu nome</legend>
 
           <div class="campo">
             <label for="ckNome">Nome completo <span aria-hidden="true">*</span></label>
@@ -38,13 +38,10 @@ const Checkout = (() => {
             <span class="form__erro" id="erroNome" role="alert"></span>
           </div>
 
-          <div class="campo">
-            <label for="ckTelefone">Telefone com DDD <span aria-hidden="true">*</span></label>
-            <input type="tel" id="ckTelefone" name="telefone" autocomplete="tel"
-                   inputmode="numeric" placeholder="(19) 99999-9999" required
-                   aria-describedby="erroTelefone">
-            <span class="form__erro" id="erroTelefone" role="alert"></span>
-          </div>
+          <p class="checkout__nota">
+            Não pedimos telefone: o pedido sai pelo seu próprio WhatsApp,
+            então a loja já responde por ali.
+          </p>
         </fieldset>
 
         <fieldset class="checkout__bloco">
@@ -191,7 +188,6 @@ const Checkout = (() => {
     const tipo = valorRadio('tipoPedido');
     return {
       nome: $('ckNome').value.trim(),
-      telefone: $('ckTelefone').value.trim(),
       tipoPedido: tipo,
       rua: tipo === 'entrega' ? $('ckRua').value.trim() : '',
       numero: tipo === 'entrega' ? $('ckNumero').value.trim() : '',
@@ -270,7 +266,7 @@ const Checkout = (() => {
 
   /* ---------- Erros ---------- */
   const CAMPO_DE_ERRO = {
-    nome: 'ckNome', telefone: 'ckTelefone', rua: 'ckRua', numero: 'ckNumero',
+    nome: 'ckNome', rua: 'ckRua', numero: 'ckNumero',
     bairro: 'ckBairro', trocoPara: 'ckTroco', observacaoGeral: 'ckObs'
   };
 
@@ -339,7 +335,8 @@ const Checkout = (() => {
         ...dados,
         trocoParaCentavos: Loja.lerValorDigitado(dados.trocoPara)
       },
-      totais: ctx.totais
+      totais: ctx.totais,
+      loja: BUSINESS_CONFIG.name
     });
 
     const url = Loja.montarUrlWhatsapp(numero, mensagem);
@@ -361,10 +358,6 @@ const Checkout = (() => {
     });
 
     form.addEventListener('submit', enviar);
-
-    // Máscara de telefone
-    const tel = $('ckTelefone');
-    tel.addEventListener('input', () => { tel.value = Loja.formatarTelefone(tel.value); });
 
     // Contador da observação
     const obs = $('ckObs');
