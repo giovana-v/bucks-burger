@@ -6,6 +6,24 @@ publica sozinho.
 
 ---
 
+## Publicar a partir desta máquina
+
+Já está autenticado. Para republicar depois de qualquer alteração:
+
+```bash
+cd bucks-burger
+npx wrangler deploy
+```
+
+Site no ar: **https://bucks-burger.giovana-vitoria-alves-soares10.workers.dev**
+
+Para revogar o acesso: dash.cloudflare.com → My Profile → API Tokens,
+ou `npx wrangler logout`.
+
+---
+
+## Alternativa: deploy automático a cada push
+
 ## 1. Conectar o repositório
 
 1. Entre em **dash.cloudflare.com** → menu lateral **Workers & Pages**
