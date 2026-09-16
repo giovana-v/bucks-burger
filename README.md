@@ -1,0 +1,226 @@
+# Buck's Burguer — site
+
+Site institucional + cardápio + pedido pelo WhatsApp.
+HTML, CSS e JavaScript puros, sem build e sem dependências.
+
+## Rodar
+
+O cardápio é carregado de `data/produtos.json` via `fetch`, então é preciso
+servir por HTTP (abrir o arquivo com duplo clique não funciona):
+
+```bash
+python3 -m http.server 8000
+# http://localhost:8000
+```
+
+Testes das regras de negócio:
+
+```bash
+node tests/testes.js
+```
+
+## Estrutura
+
+```
+bucks-burger/
+├── index.html · cardapio.html · produto.html · contato.html · 404.html
+├── robots.txt · sitemap.xml          (SEO — ver "Domínio" abaixo)
+├── css/    global.css · components.css · responsive.css
+├── js/
+│   ├── config.js     ← CONFIGURAÇÃO CENTRAL (mexa aqui)
+│   ├── loja.js       ← regras de negócio, funções puras e testáveis
+│   ├── modal.js      ← diálogo acessível reutilizável
+│   ├── carrinho.js   ← estado do carrinho + painel lateral
+│   ├── checkout.js   ← formulário de identificação + WhatsApp
+│   ├── cardapio.js   ← catálogo, carrossel, página de produto
+│   └── main.js       ← header, animações e dados comerciais na tela
+├── data/produtos.json
+├── tests/testes.js
+└── assets/images · assets/icons
+```
+
+**Separação de responsabilidades:** `config.js` guarda os dados, `loja.js`
+guarda as contas (sem tocar no DOM, por isso é testável), e os demais
+arquivos só cuidam de interface. Carrinho, checkout e mensagem do WhatsApp
+usam a **mesma** função de cálculo, então os três nunca divergem.
+
+---
+
+# Como configurar
+
+Tudo o que muda de loja para loja está em **[js/config.js](js/config.js)**.
+Nenhum endereço, telefone ou horário está escrito no HTML.
+
+> **Regra do projeto:** campo vazio (`""` ou `null`) significa *dado não
+> confirmado*, e o site **esconde** o bloco correspondente em vez de exibir
+> um valor de exemplo. Nunca preencha "só para não ficar vazio".
+
+### Contatos comerciais
+
+```js
+whatsapp:  "5519991938590",   // já configurado
+phone:     "",               // fixo — enquanto vazio, não aparece
+email:     "",               // enquanto vazio, não aparece
+instagram: "",               // só o usuário, sem "@"
+```
+
+### Endereço
+
+```js
+address: {
+  street: "", number: "", neighborhood: "",
+  city: "", state: "", zipCode: "",
+  coords: null              // { lat: -22.9, lng: -47.0 }
+}
+```
+
+Enquanto `street` e `city` estiverem vazios, **somem** do site: o bloco
+"Estamos em" da home, o mapa e o bloco de endereço da página de contato.
+`coords` só é necessário se você quiser calcular frete por distância.
+
+### Horários
+
+```js
+businessHours: {
+  timeZone: "America/Sao_Paulo",
+  monday:    null,                           // não abre
+  tuesday:   { open: "18:00", close: null }, // fechamento a confirmar
+  ...
+}
+```
+
+- `null` no dia = fechado o dia inteiro.
+- `close: null` = **horário de fechamento ainda não confirmado**. O site
+  mostra "a partir das 18:00" e considera a loja aberta depois desse
+  horário, em vez de inventar um encerramento.
+- Turno que vira a madrugada funciona: `{ open: "18:00", close: "02:00" }`.
+
+Quando a loja está fechada, o botão de finalizar fica desabilitado e o
+carrinho explica o motivo e a próxima abertura.
+
+### Taxa de entrega e pedido mínimo
+
+```js
+delivery: {
+  freeRadiusKm: 1.5,
+  minimumOrder: null,   // em CENTAVOS: 3000 = R$ 30,00
+  feeRules: []
+}
+```
+
+Três formatos de regra, avaliados na ordem da lista:
+
+```js
+feeRules: [
+  { tipo: "bairro",    bairros: ["Centro", "Vila Nova"], taxaCentavos: 500 },
+  { tipo: "cep",       de: "13000000", ate: "13099999",  taxaCentavos: 700 },
+  { tipo: "distancia", ateKm: 3,                          taxaCentavos: 0 }
+]
+```
+
+- **Sem regras cadastradas**, a taxa sai como "A combinar com a loja" e o
+  total é declarado como **parcial** — na tela e na mensagem do WhatsApp.
+- **Frete grátis por raio só é aplicado com distância real medida**, o que
+  exige `address.coords` e as coordenadas do cliente. Como o checkout coleta
+  o endereço em texto, isso ainda não acontece — por isso o card da home diz
+  "Consulte as condições" em vez de prometer gratuidade.
+- `minimumOrder` preenchido faz o carrinho mostrar quanto falta e bloquear a
+  finalização.
+
+### Domínio
+
+```js
+siteUrl: ""
+```
+
+Quando o domínio existir:
+
+1. Preencha `siteUrl` em `config.js`.
+2. Nos 5 HTML, descomente o bloco `<!-- ================= COMPARTILHAMENTO -->`
+   e troque `SEU-DOMINIO` (habilita `canonical`, `og:url`, `og:image`).
+3. Em `sitemap.xml`, troque todas as ocorrências de `SEU-DOMINIO` e atualize
+   `<lastmod>`.
+4. Em `robots.txt`, descomente a linha `Sitemap:`.
+
+### Imagem de compartilhamento
+
+```js
+socialImage: ""
+```
+
+Coloque um arquivo de **1200 × 630 px** (JPG ou PNG, até ~300 KB) em
+`assets/images/og-capa.jpg` e aponte aqui. Sem ela, as meta tags `og:image`
+ficam comentadas de propósito: apontar para uma imagem inexistente quebra o
+preview do link no WhatsApp.
+
+### Alérgenos
+
+Em `data/produtos.json`, cada produto aceita dois campos **opcionais**:
+
+```json
+{
+  "alergenos": ["glúten", "lactose", "ovo"],
+  "avisoContaminacaoCruzada": false
+}
+```
+
+- Campo **ausente** = não conferido → o site mostra
+  "Alérgenos não informados — consulte a equipe".
+- Lista **vazia** `[]` = conferido, nenhum alérgeno.
+- O site **nunca** afirma que um produto é livre de algo sem o cadastro.
+
+O vocabulário sugerido e um exemplo da estrutura estão no bloco
+`_alergenos` no topo do próprio `produtos.json`. Hoje **nenhum produto tem
+alérgeno cadastrado** — preencha junto com a cozinha antes de divulgar.
+
+---
+
+## Imagens
+
+Todo espaço de foto é uma `<div class="ph">` com rótulo e um comentário HTML
+acima indicando o arquivo esperado. Para inserir:
+
+```html
+<div class="ph" style="background-image:url('assets/images/hero-burger.png')"></div>
+```
+
+O rótulo some sozinho quando há `url` no `style`.
+
+| Arquivo | Onde aparece | Situação |
+| --- | --- | --- |
+| `assets/images/logo.jpg` | Logo no header, nas duas faixas do rodapé e favicon | **colocada** |
+| `assets/images/noitedoDate.jpg` | Cartaz da seção Reservas | **colocada** |
+| `assets/images/hero-tijolo.jpg` | Fundo do hero e da seção de delivery | falta |
+| `assets/images/hero-madeira.jpg` | Faixa de madeira na base do hero | falta |
+| `assets/images/hero-burger.png` | Hambúrguer do hero (PNG sem fundo) | falta |
+| `assets/images/cardapio-topo.jpg` | Topo do cardápio | falta |
+| `assets/images/produto-topo.jpg` | Topo da página de produto | falta |
+| `assets/images/contato-topo.jpg` | Topo do contato | falta |
+| fotos dos produtos | campo `imagem` de cada item do `produtos.json` | falta |
+
+> O cartaz da Noite do Date tem o texto embutido na imagem ("sexta-feira,
+> casal R$ 99,99, mediante reserva"). Isso está descrito no `alt` para
+> leitores de tela, mas **trocar a promoção exige trocar a imagem** — o
+> preço não sai de nenhuma configuração.
+
+As fotos dos produtos ficam no campo `imagem` de cada item do
+`produtos.json`.
+
+## Identidade visual
+
+| Token | Hex | Uso |
+| --- | --- | --- |
+| `--preto` | `#0B0B0B` | Fundo e estrutura |
+| `--vermelho` | `#C51F28` | Destaques e bordas |
+| `--dourado` | `#D9A928` | Preços e detalhe premium |
+| `--verde` | `#567B32` | Tag veggie |
+| `--marrom` | `#713A22` | Elementos rústicos |
+
+Anton nos títulos, Caveat nos manuscritos, Montserrat nos textos e preços.
+
+## Privacidade
+
+Os dados do checkout (nome, telefone, endereço) ficam **apenas em memória**
+e no formulário durante o preenchimento. Não vão para `localStorage`, não são
+enviados a terceiros e só seguem para o WhatsApp da loja por ação explícita
+do cliente. O `localStorage` guarda somente o carrinho em montagem.

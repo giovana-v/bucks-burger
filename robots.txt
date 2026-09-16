@@ -1,0 +1,23 @@
+# ============================================================
+# Buck's Burguer — robots.txt
+# ============================================================
+# Libera a indexação das páginas públicas e mantém acessíveis
+# os arquivos que o Google precisa para renderizar o site
+# (CSS, JS e imagens). Bloquear esses arquivos prejudica o
+# ranqueamento.
+# ============================================================
+
+User-agent: *
+Allow: /
+
+# Página de erro não deve ser indexada
+Disallow: /404.html
+
+# ------------------------------------------------------------
+# TODO: quando o domínio real estiver configurado
+# (BUSINESS_CONFIG.siteUrl em js/config.js), descomente a linha
+# abaixo trocando SEU-DOMINIO. Sem domínio real, apontar para um
+# sitemap inexistente gera erro no Search Console.
+#
+# Sitemap: https://SEU-DOMINIO/sitemap.xml
+# ------------------------------------------------------------

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Buck's Burguer — Hamburgueria artesanal</title>
+<meta name="description" content="Hamburgueria artesanal Buck's Burguer. Blend próprio, pão brioche e ingredientes selecionados. Peça pelo site e receba em casa ou retire no balcão.">
+
+<!-- ================= COMPARTILHAMENTO =================
+     Open Graph e Twitter Card.
+
+     PENDENTE — preencher em js/config.js e depois refletir aqui:
+       1) BUSINESS_CONFIG.siteUrl    -> habilita <link rel="canonical">
+                                        e <meta property="og:url">
+       2) BUSINESS_CONFIG.socialImage -> habilita <meta property="og:image">
+                                        (1200x630 px)
+
+     As linhas abaixo estão comentadas de propósito: apontar para um
+     domínio ou imagem que não existe quebra o preview no WhatsApp.
+     Troque SEU-DOMINIO pelo domínio real e descomente.
+
+     <link rel="canonical" href="https://SEU-DOMINIO/{pagina}">
+     <meta property="og:url" content="https://SEU-DOMINIO/{pagina}">
+     <meta property="og:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
+     <meta property="og:image:width" content="1200">
+     <meta property="og:image:height" content="630">
+     <meta name="twitter:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
+     ==================================================== -->
+<meta property="og:site_name" content="Buck's Burguer">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Buck's Burguer — Hamburgueria artesanal">
+<meta property="og:description" content="Hamburgueria artesanal Buck's Burguer. Blend próprio, pão brioche e ingredientes selecionados. Peça pelo site e receba em casa ou retire no balcão.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Buck's Burguer — Hamburgueria artesanal">
+<meta name="twitter:description" content="Hamburgueria artesanal Buck's Burguer. Blend próprio, pão brioche e ingredientes selecionados. Peça pelo site e receba em casa ou retire no balcão.">
+<meta name="theme-color" content="#0B0B0B">
+
+<link rel="icon" href="assets/images/logo.jpg">
+
+<!-- Fontes: preconnect + link no head carrega antes do CSS terminar -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap">
+
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <div class="container header__inner">
+    <a class="logo" href="index.html">
+      <img class="logo__marca" src="assets/images/logo.jpg" alt="Buck's Burguer" width="52" height="52" decoding="async">
+      <span class="logo__texto">
+        <span class="logo__nome">BUCK'S</span>
+        <span class="logo__sub">Burguer</span>
+      </span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Menu principal">
+      <a class="nav__link" href="index.html">Início</a>
+      <a class="nav__link" href="cardapio.html">Menu</a>
+      <a class="nav__link" href="index.html#reservas">Reservas</a>
+      <a class="nav__link" href="contato.html">Nós</a>
+    </nav>
+
+    <div class="header__acoes">
+      <p class="status-loja" data-status-loja></p>
+
+      <a class="busca-btn" href="cardapio.html" aria-label="Buscar no cardápio">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </a>
+
+      <button class="carrinho-btn" id="carrinhoAbrir" type="button" aria-label="Abrir carrinho">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+        <span class="carrinho-btn__contador" id="carrinhoContador" hidden>0</span>
+      </button>
+
+      <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ============ HERO ============ -->
+<section class="hero-v2">
+  <!-- IMAGEM DE FUNDO: parede de tijolo escura -> assets/images/hero-tijolo.jpg -->
+  <div class="ph hero-v2__fundo ph--sem-borda"></div>
+  <!-- IMAGEM: tábua de madeira (faixa inferior) -> assets/images/hero-madeira.jpg -->
+  <div class="ph hero-v2__madeira ph--sem-borda"></div>
+
+  <div class="fita">nova receita</div>
+  <div class="fita__lista">
+    <span>+ sabor</span>
+    <span>+ cebola caramelizada</span>
+    <span>+ queijo</span>
+  </div>
+
+  <div class="social-rail">
+    <a href="#" data-social="instagram" aria-label="Instagram da Buck's Burguer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+    <a href="#" data-social="whatsapp" aria-label="WhatsApp da Buck's Burguer"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 21l2.3-5.3A8.4 8.4 0 1 1 21 11.5z"/></svg></a>
+  </div>
+
+  <div class="container">
+    <div class="hero-v2__inner">
+      <div>
+        <h1 class="hero-v2__h1">
+          <span class="hero-v2__marca">BUCK'S <span class="hero-v2__script">sabor caseiro</span></span>
+          <span class="hero-v2__titulo">BURGUER</span>
+        </h1>
+        <p class="hero-v2__linhas">
+          <strong>Peça online e retire sem fila.</strong><br>
+          Retire na caixa e aproveite.
+        </p>
+        <a class="btn btn--claro" href="cardapio.html">Pedir agora</a>
+      </div>
+
+      <div class="hero-v2__midia">
+        <!-- IMAGEM: hambúrguer principal em PNG sem fundo -> assets/images/hero-burger.png -->
+        <div class="ph" data-label="Foto do hambúrguer&#10;(PNG sem fundo)"></div>
+        <span class="hero-v2__nota hero-v2__nota--1">and cheese</span>
+        <span class="hero-v2__nota hero-v2__nota--2">caramelized onion</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MENU DA SEMANA ============ -->
+<section class="semana" aria-labelledby="tituloSemana">
+  <div class="container">
+    <h2 class="semana__titulo" id="tituloSemana">Menu da semana</h2>
+
+    <div class="carrossel">
+      <button class="carrossel__seta" type="button" data-carrossel="anterior" aria-label="Ver itens anteriores">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+
+      <div class="carrossel__trilho" id="trilhoSemana"></div>
+
+      <button class="carrossel__seta" type="button" data-carrossel="proximo" aria-label="Ver próximos itens">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HORÁRIOS E UNIDADES ============ -->
+<section class="horarios-sec" aria-labelledby="tituloHorarios">
+  <div class="container">
+    <div class="titulo-risco revelar">
+      <h2 id="tituloHorarios">Horários e Unidades</h2>
+    </div>
+
+    <div class="horarios-grade">
+      <div class="horarios-cols revelar">
+        <div class="bloco-info">
+          <h3>Funcionamento</h3>
+          <!-- Preenchido por js/main.js a partir de BUSINESS_CONFIG.businessHours -->
+          <div data-horarios></div>
+          <p class="status-loja status-loja--bloco" data-status-loja></p>
+        </div>
+
+        <div class="bloco-info" data-some-sem-endereco>
+          <h3>Estamos em</h3>
+          <p data-endereco></p>
+        </div>
+      </div>
+
+      <div class="mapas revelar" data-some-sem-endereco>
+        <div class="mapa-card">
+          <!-- MAPA: só inserir quando o endereço real estiver em js/config.js -->
+          <div class="ph" data-label="Mapa da loja"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESERVAS ============ -->
+<section class="reservas" id="reservas" aria-labelledby="tituloReservas">
+  <div class="container reservas__inner">
+    <div class="colagem">
+      <!-- Cartaz da promoção. O texto está dentro da imagem, por isso
+           o alt descreve a oferta por inteiro para leitores de tela.
+           Para trocar a promoção é preciso trocar a imagem. -->
+      <img class="colagem__cartaz"
+           src="assets/images/noitedoDate.jpg"
+           alt="Noite do Date, toda sexta-feira. Casal por R$ 99,99, mediante reserva."
+           width="1242" height="2208" loading="lazy" decoding="async">
+    </div>
+
+    <div class="reservas__texto">
+      <h2 id="tituloReservas">Reservas</h2>
+      <p><strong>Garanta sua mesa e aproveite sem espera!</strong></p>
+      <p>
+        Nosso salão enche rápido, então reserve seu lugar com antecedência.
+        Escolha o dia, o horário e venha curtir com os amigos as melhores
+        hambúrgueres num ambiente confortável e descontraído.
+      </p>
+      <p><strong>Esperamos por você!</strong></p>
+      <a class="btn btn--primario" href="contato.html">Reservar mesa</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DELIVERY ============ -->
+<section class="delivery" aria-labelledby="tituloDelivery">
+  <!-- IMAGEM DE FUNDO: parede de tijolo -> assets/images/hero-tijolo.jpg -->
+  <div class="ph delivery__fundo ph--sem-borda"></div>
+
+  <h2 class="sr-only" id="tituloDelivery">Nosso delivery</h2>
+
+  <div class="container delivery__grade">
+    <div class="vantagem revelar">
+      <div class="vantagem__icone" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <h3>Taxa de entrega</h3>
+      <!-- Texto definido por js/main.js: só promete frete grátis
+           quando as regras existirem em BUSINESS_CONFIG.delivery -->
+      <p data-entrega-aviso></p>
+    </div>
+
+    <div class="vantagem revelar">
+      <div class="vantagem__icone" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 15c0-3 2-3.5 2-6S7 6 7 4"/><path d="M12 15c0-3 2-3.5 2-6s-2-3-2-5"/><path d="M17 15c0-3 2-3.5 2-6s-2-3-2-5"/></svg>
+      </div>
+      <h3>Pedido quente</h3>
+      <p>Embalagem térmica para você não precisar requentar nada.</p>
+    </div>
+
+    <div class="vantagem revelar">
+      <div class="vantagem__icone" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M8 17h8"/><path d="M19 17V8h-4l-3 6"/><path d="M5 17 9 6h3"/></svg>
+      </div>
+      <h3>Entrega rápida</h3>
+      <p>Contamos com a melhor equipe de delivery para você.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ RODAPÉ ============ -->
+<footer class="footer-v2">
+  <div class="container">
+    <div class="footer-v2__grade">
+
+      <div>
+        <h2 class="footer-v2__titulo">Contato</h2>
+        <!-- Preenchido por js/main.js a partir de js/config.js.
+             Dado não confirmado não vira link. -->
+        <div class="footer-v2__contatos" data-contatos></div>
+      </div>
+
+      <nav class="footer-v2__links" aria-label="Links do rodapé">
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="cardapio.html">Menu</a></li>
+          <li><a href="index.html#reservas">Reservas</a></li>
+          <li><a href="contato.html">Nós</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer-v2__info">
+        <div class="bloco-info">
+          <h3>Horários</h3>
+          <div data-horarios></div>
+        </div>
+        <div class="bloco-info" data-some-sem-endereco>
+          <h3>Estamos em</h3>
+          <p data-endereco></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-v2__base">
+    <div class="container footer-v2__base-inner">
+      <a class="logo" href="index.html">
+        <img class="logo__marca" src="assets/images/logo.jpg" alt="Buck's Burguer" width="52" height="52" decoding="async">
+        <span class="logo__texto">
+          <span class="logo__nome">BUCK'S</span>
+          <span class="logo__sub">Burguer</span>
+        </span>
+      </a>
+      <p>© Copyright <span data-ano>2026</span> — Todos os direitos reservados</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ CARRINHO ============ -->
+<div class="overlay" id="overlay"></div>
+<aside class="carrinho" id="carrinhoDrawer" aria-label="Carrinho de compras">
+  <div class="carrinho__topo">
+    <h2>Seu pedido</h2>
+    <button class="carrinho__fechar" id="carrinhoFechar" type="button" aria-label="Fechar carrinho">×</button>
+  </div>
+
+  <div class="carrinho__lista" id="carrinhoLista"></div>
+
+  <div class="carrinho__rodape">
+    <div class="resumo" id="carrinhoResumo"></div>
+    <p class="carrinho__aviso" id="carrinhoAviso" role="status" hidden></p>
+    <button class="btn btn--primario btn--bloco" id="carrinhoFinalizar" type="button">
+      Finalizar pedido
+    </button>
+  </div>
+</aside>
+
+<!-- Ordem obrigatória: config -> regras -> componentes -> telas -->
+<script src="js/config.js"></script>
+<script src="js/loja.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/carrinho.js"></script>
+<script src="js/checkout.js"></script>
+<script src="js/cardapio.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

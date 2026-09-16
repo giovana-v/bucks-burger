@@ -1,0 +1,19 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Dependências (o projeto não usa, mas evita commit acidental)
+node_modules/
+package-lock.json
+
+# Logs e temporários
+*.log
+.cache/
+tmp/

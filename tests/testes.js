@@ -1,0 +1,545 @@
+/* ============================================================
+   BUCK'S BURGUER — TESTES DAS REGRAS DE NEGÓCIO
+   Rodar com:  node tests/testes.js
+   Sem dependências: só Node e as funções puras de js/loja.js.
+   ============================================================ */
+
+const { Loja } = require('../js/loja.js');
+const { BUSINESS_CONFIG } = require('../js/config.js');
+
+let passou = 0, falhou = 0;
+const falhas = [];
+
+function teste(nome, fn) {
+  try {
+    fn();
+    passou++;
+    console.log(`  ✓ ${nome}`);
+  } catch (e) {
+    falhou++;
+    falhas.push({ nome, erro: e.message });
+    console.log(`  ✗ ${nome}\n      ${e.message}`);
+  }
+}
+function grupo(nome) { console.log(`\n${nome}`); }
+function igual(recebido, esperado, msg = '') {
+  const a = JSON.stringify(recebido), b = JSON.stringify(esperado);
+  if (a !== b) throw new Error(`${msg}\n      esperado: ${b}\n      recebido: ${a}`);
+}
+function verdadeiro(v, msg) { if (!v) throw new Error(msg || 'esperava verdadeiro'); }
+function contem(texto, trecho) {
+  if (!String(texto).includes(trecho)) {
+    throw new Error(`esperava encontrar "${trecho}" em:\n${texto}`);
+  }
+}
+function naoContem(texto, trecho) {
+  if (String(texto).includes(trecho)) {
+    throw new Error(`NÃO esperava encontrar "${trecho}" em:\n${texto}`);
+  }
+}
+
+/* ---------- Fixtures ---------- */
+const burger = (extra = {}) => ({
+  id: 1, nome: 'The King', precoCentavos: 4290, qtd: 1, adicionais: [], obs: '', ...extra
+});
+const bacon = { id: 'bacon', nome: 'Bacon extra', precoCentavos: 700 };
+
+/* ============================================================ */
+grupo('DINHEIRO — centavos e formatação');
+
+teste('converte reais em centavos sem erro de ponto flutuante', () => {
+  igual(Loja.paraCentavos(42.90), 4290);
+  igual(Loja.paraCentavos(8.90), 890);
+  igual(Loja.paraCentavos(0.1 + 0.2), 30); // 0.30000000000000004
+});
+
+teste('soma de centavos não acumula erro de float', () => {
+  const itens = [burger({ precoCentavos: 1990 }), burger({ id: 2, precoCentavos: 890 }),
+                 burger({ id: 3, precoCentavos: 1890 })];
+  igual(Loja.calcularSubtotal(itens), 4770);
+  // a mesma conta em float daria 47.699999999999996
+});
+
+teste('formata no padrão pt-BR', () => {
+  igual(Loja.formatarMoeda(4290).replace(/ /g, ' '), 'R$ 42,90');
+  igual(Loja.formatarMoeda(0).replace(/ /g, ' '), 'R$ 0,00');
+});
+
+teste('lê valor digitado pelo cliente em vários formatos', () => {
+  igual(Loja.lerValorDigitado('50'), 5000);
+  igual(Loja.lerValorDigitado('50,00'), 5000);
+  igual(Loja.lerValorDigitado('R$ 1.250,50'), 125050);
+  igual(Loja.lerValorDigitado('abc'), null);
+  igual(Loja.lerValorDigitado(''), null);
+  igual(Loja.lerValorDigitado('-10'), null);
+});
+
+/* ============================================================ */
+grupo('CARRINHO — subtotal, adicionais e agrupamento');
+
+teste('subtotal considera adicionais e quantidade', () => {
+  const item = burger({ qtd: 2, adicionais: [bacon] });
+  igual(Loja.precoUnitario(item), 4990);
+  igual(Loja.precoItem(item), 9980);
+});
+
+teste('carrinho vazio soma zero', () => {
+  igual(Loja.calcularSubtotal([]), 0);
+  igual(Loja.calcularSubtotal(undefined), 0);
+});
+
+teste('produtos iguais com a MESMA observação têm a mesma chave (agrupam)', () => {
+  igual(Loja.chaveItem(burger({ obs: 'sem cebola' })),
+        Loja.chaveItem(burger({ obs: 'sem cebola' })));
+});
+
+teste('observação com espaçamento diferente ainda agrupa', () => {
+  igual(Loja.chaveItem(burger({ obs: '  sem   cebola ' })),
+        Loja.chaveItem(burger({ obs: 'sem cebola' })));
+});
+
+teste('produtos iguais com observações DIFERENTES não agrupam', () => {
+  const a = Loja.chaveItem(burger({ obs: 'sem cebola' }));
+  const b = Loja.chaveItem(burger({ obs: 'alergia a nozes' }));
+  verdadeiro(a !== b, 'alergia não pode ser agrupada com pedido normal');
+});
+
+teste('adicionais diferentes não agrupam, mas a ordem deles não importa', () => {
+  const queijo = { id: 'cheddar', nome: 'Cheddar', precoCentavos: 600 };
+  verdadeiro(Loja.chaveItem(burger({ adicionais: [bacon] })) !==
+             Loja.chaveItem(burger({ adicionais: [] })));
+  igual(Loja.chaveItem(burger({ adicionais: [bacon, queijo] })),
+        Loja.chaveItem(burger({ adicionais: [queijo, bacon] })));
+});
+
+teste('observação é limitada a 200 caracteres', () => {
+  igual(Loja.normalizarObs('a'.repeat(500)).length, 200);
+  igual(Loja.normalizarObs(null), '');
+  igual(Loja.normalizarObs(undefined), '');
+});
+
+/* ============================================================ */
+grupo('ENTREGA — taxa, gratuidade e pedido mínimo');
+
+teste('retirada não tem taxa', () => {
+  const t = Loja.calcularTaxaEntrega(BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  igual(t.situacao, 'retirada');
+  igual(t.centavos, 0);
+});
+
+teste('sem regras cadastradas a taxa fica indeterminada (não inventa valor)', () => {
+  const t = Loja.calcularTaxaEntrega(BUSINESS_CONFIG, { tipoPedido: 'entrega', bairro: 'Centro' });
+  igual(t.situacao, 'indeterminada');
+  igual(t.centavos, null);
+});
+
+teste('regra por bairro aplica a taxa, ignorando acento e caixa', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'bairro', bairros: ['São José'], taxaCentavos: 800 }] } };
+  const t = Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', bairro: 'sao jose' });
+  igual(t.centavos, 800);
+  igual(t.situacao, 'calculada');
+});
+
+teste('regra por faixa de CEP aplica a taxa', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'cep', de: '13000000', ate: '13099999', taxaCentavos: 600 }] } };
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: '13050-100' }).centavos, 600);
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', cep: '99999-999' }).centavos, null);
+});
+
+teste('frete grátis só com distância REAL medida dentro do raio', () => {
+  const cfg = { delivery: { freeRadiusKm: 1.5, feeRules: [] } };
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', distanciaKm: 1.2 }).gratis, true);
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega', distanciaKm: 4 }).situacao, 'indeterminada');
+  // sem distância informada não promete gratuidade
+  igual(Loja.calcularTaxaEntrega(cfg, { tipoPedido: 'entrega' }).gratis, false);
+});
+
+teste('distância entre coordenadas (Haversine) bate com a referência', () => {
+  // 0.008983 grau de longitude no equador = 1 km exato
+  const umKm = Loja.distanciaEntre({ lat: 0, lng: 0 }, { lat: 0, lng: 0.008983 });
+  verdadeiro(Math.abs(umKm - 1) < 0.01, `esperava 1 km, recebeu ${umKm}`);
+
+  // Campinas -> São Paulo em linha reta: ~84 km
+  const d = Loja.distanciaEntre({ lat: -22.9056, lng: -47.0608 }, { lat: -23.5505, lng: -46.6333 });
+  verdadeiro(d > 80 && d < 88, `esperava ~84 km, recebeu ${d}`);
+
+  // coordenada ausente ou inválida não vira distância zero
+  igual(Loja.distanciaEntre(null, { lat: -23.5, lng: -46.6 }), null);
+  igual(Loja.distanciaEntre({ lat: 999, lng: 0 }, { lat: -23.5, lng: -46.6 }), null);
+});
+
+teste('total soma subtotal + taxa', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'bairro', bairros: ['centro'], taxaCentavos: 500 }] } };
+  const t = Loja.calcularTotais([burger()], cfg, { tipoPedido: 'entrega', bairro: 'centro' });
+  igual(t.subtotal, 4290);
+  igual(t.total, 4790);
+  igual(t.totalParcial, false);
+});
+
+teste('taxa indeterminada marca o total como parcial', () => {
+  const t = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'entrega' });
+  igual(t.total, 4290);
+  igual(t.totalParcial, true);
+});
+
+teste('sem pedido mínimo configurado, qualquer valor passa', () => {
+  const t = Loja.calcularTotais([burger({ precoCentavos: 100 })], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  igual(t.minimo, null);
+  igual(t.atingiuMinimo, true);
+});
+
+teste('pedido mínimo configurado calcula quanto falta e bloqueia', () => {
+  const cfg = { delivery: { minimumOrder: 5000, feeRules: [] } };
+  const t = Loja.calcularTotais([burger()], cfg, { tipoPedido: 'retirada' });
+  igual(t.faltaParaMinimo, 710);
+  igual(t.atingiuMinimo, false);
+  const ok = Loja.calcularTotais([burger({ qtd: 2 })], cfg, { tipoPedido: 'retirada' });
+  igual(ok.atingiuMinimo, true);
+});
+
+/* ============================================================ */
+grupo('HORÁRIO — fuso America/Sao_Paulo');
+
+const H = BUSINESS_CONFIG.businessHours;
+// 2026-09-14 é uma segunda-feira.
+const emBrasilia = (iso) => new Date(iso); // ISO com Z; a função converte para o fuso
+
+teste('segunda-feira: fechado o dia inteiro', () => {
+  const manha = Loja.estaAberto(H, emBrasilia('2026-09-14T13:00:00Z')); // 10h BRT
+  const noite = Loja.estaAberto(H, emBrasilia('2026-09-14T23:00:00Z')); // 20h BRT
+  igual(manha.aberto, false);
+  igual(noite.aberto, false);
+  contem(noite.motivo, 'segundas-feiras');
+});
+
+teste('segunda-feira informa a próxima abertura', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-14T23:00:00Z'));
+  igual(r.proximaAbertura, 'amanhã às 18:00');
+});
+
+teste('terça às 17h (BRT): ainda fechado', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T20:00:00Z'));
+  igual(r.aberto, false);
+  contem(r.motivo, 'Abrimos hoje às 18:00');
+  igual(r.proximaAbertura, 'hoje às 18:00');
+});
+
+teste('terça às 19h (BRT): aberto', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T22:00:00Z'));
+  igual(r.aberto, true);
+});
+
+teste('usa o fuso da loja, não o do visitante', () => {
+  // 2026-09-15T02:00Z = ainda segunda 23h em Brasília
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T02:00:00Z'));
+  igual(r.aberto, false);
+  contem(r.motivo, 'segundas-feiras');
+});
+
+teste('fechamento não confirmado é sinalizado, não inventado', () => {
+  const r = Loja.estaAberto(H, emBrasilia('2026-09-15T22:00:00Z'));
+  igual(r.fechamentoIndefinido, true);
+  igual(r.configuracaoIncompleta, true);
+});
+
+teste('com fechamento configurado, respeita o encerramento', () => {
+  const cfg = { timeZone: 'America/Sao_Paulo', tuesday: { open: '18:00', close: '23:00' } };
+  igual(Loja.estaAberto(cfg, emBrasilia('2026-09-15T23:00:00Z')).aberto, true);  // 20h
+  igual(Loja.estaAberto(cfg, emBrasilia('2026-09-16T02:30:00Z')).aberto, false); // 23h30
+});
+
+teste('turno que vira a madrugada continua aberto depois da meia-noite', () => {
+  const cfg = {
+    timeZone: 'America/Sao_Paulo',
+    friday: { open: '18:00', close: '02:00' },
+    saturday: { open: '18:00', close: '02:00' }
+  };
+  // sábado 00h30 BRT ainda é o turno de sexta
+  igual(Loja.estaAberto(cfg, emBrasilia('2026-09-19T03:30:00Z')).aberto, true);
+});
+
+teste('sem configuração de horário, não afirma que está aberto', () => {
+  const r = Loja.estaAberto(null);
+  igual(r.aberto, false);
+  igual(r.configuracaoIncompleta, true);
+});
+
+/* ============================================================ */
+grupo('ALÉRGENOS — compatibilidade com dados antigos');
+
+teste('produto SEM o campo não é tratado como livre de alérgenos', () => {
+  const a = Loja.lerAlergenos({ id: 1, nome: 'Burger antigo' });
+  igual(a.informado, false);
+  igual(a.lista, []);
+  contem(a.texto, 'não informados');
+  naoContem(a.texto, 'livre');
+  naoContem(a.texto, 'Nenhum alérgeno');
+});
+
+teste('produto com lista preenchida exibe os alérgenos', () => {
+  const a = Loja.lerAlergenos({ alergenos: ['glúten', 'lactose'] });
+  igual(a.informado, true);
+  igual(a.lista, ['glúten', 'lactose']);
+  contem(a.texto, 'Contém: glúten, lactose');
+});
+
+teste('lista vazia significa conferido, e é diferente de não informado', () => {
+  const a = Loja.lerAlergenos({ alergenos: [] });
+  igual(a.informado, true);
+  contem(a.texto, 'Nenhum alérgeno cadastrado');
+});
+
+teste('aviso de contaminação cruzada só quando true', () => {
+  igual(Loja.lerAlergenos({ alergenos: [], avisoContaminacaoCruzada: true }).contaminacaoCruzada, true);
+  igual(Loja.lerAlergenos({ alergenos: [] }).contaminacaoCruzada, false);
+  igual(Loja.lerAlergenos({}).contaminacaoCruzada, false);
+});
+
+teste('nenhum produto do catálogo tem alérgeno não confirmado', () => {
+  const dados = require('../data/produtos.json');
+  const comAlergeno = dados.produtos.filter(p => Array.isArray(p.alergenos) && p.alergenos.length);
+  igual(comAlergeno.length, 0, 'catálogo não deve publicar alérgeno sem confirmação da cozinha');
+});
+
+/* ============================================================ */
+grupo('CHECKOUT — validação dos campos');
+
+const baseValida = {
+  nome: 'Maria Silva', telefone: '(19) 99193-8590', tipoPedido: 'retirada',
+  pagamento: 'pix', observacaoGeral: ''
+};
+const ctxOk = { temItens: true, total: 4290, lojaFechada: false, abaixoDoMinimo: false };
+
+teste('pedido de retirada válido passa', () => {
+  const r = Loja.validarCheckout(baseValida, ctxOk);
+  igual(r.valido, true);
+  igual(r.erros, {});
+});
+
+teste('nome incompleto é recusado', () => {
+  igual(Loja.validarCheckout({ ...baseValida, nome: 'Ma' }, ctxOk).erros.nome !== undefined, true);
+  igual(Loja.validarCheckout({ ...baseValida, nome: 'Maria' }, ctxOk).erros.nome, 'Informe nome e sobrenome.');
+});
+
+teste('telefone precisa de DDD', () => {
+  igual(Loja.validarCheckout({ ...baseValida, telefone: '99193-8590' }, ctxOk).erros.telefone !== undefined, true);
+  igual(Loja.validarCheckout({ ...baseValida, telefone: '(19) 3333-4444' }, ctxOk).erros.telefone, undefined);
+});
+
+teste('RETIRADA não exige endereço', () => {
+  const r = Loja.validarCheckout({ ...baseValida, tipoPedido: 'retirada' }, ctxOk);
+  igual(r.erros.rua, undefined);
+  igual(r.erros.bairro, undefined);
+});
+
+teste('ENTREGA exige rua, número e bairro', () => {
+  const r = Loja.validarCheckout({ ...baseValida, tipoPedido: 'entrega' }, ctxOk);
+  igual(r.valido, false);
+  verdadeiro(r.erros.rua && r.erros.numero && r.erros.bairro);
+});
+
+teste('ENTREGA com endereço completo passa; complemento e referência são opcionais', () => {
+  const r = Loja.validarCheckout({
+    ...baseValida, tipoPedido: 'entrega',
+    rua: 'Rua Exemplo', numero: '100', bairro: 'Centro'
+  }, ctxOk);
+  igual(r.valido, true);
+});
+
+teste('DINHEIRO exige troco ou a marcação "não preciso de troco"', () => {
+  const semNada = Loja.validarCheckout({ ...baseValida, pagamento: 'dinheiro' }, ctxOk);
+  igual(semNada.valido, false);
+  verdadeiro(semNada.erros.trocoPara);
+
+  const semTroco = Loja.validarCheckout({ ...baseValida, pagamento: 'dinheiro', semTroco: true }, ctxOk);
+  igual(semTroco.valido, true);
+
+  const comTroco = Loja.validarCheckout({ ...baseValida, pagamento: 'dinheiro', trocoPara: '50' }, ctxOk);
+  igual(comTroco.valido, true);
+});
+
+teste('troco menor que o total é recusado', () => {
+  const r = Loja.validarCheckout({ ...baseValida, pagamento: 'dinheiro', trocoPara: '10' }, ctxOk);
+  verdadeiro(r.erros.trocoPara);
+  contem(r.erros.trocoPara, '42,90');
+});
+
+teste('PIX e cartão não pedem troco', () => {
+  for (const p of ['pix', 'credito', 'debito']) {
+    igual(Loja.validarCheckout({ ...baseValida, pagamento: p }, ctxOk).erros.trocoPara, undefined);
+  }
+});
+
+teste('carrinho vazio bloqueia o envio', () => {
+  const r = Loja.validarCheckout(baseValida, { ...ctxOk, temItens: false });
+  igual(r.valido, false);
+  contem(r.erros.carrinho, 'vazio');
+});
+
+teste('loja fechada bloqueia o envio', () => {
+  const r = Loja.validarCheckout(baseValida, { ...ctxOk, lojaFechada: true });
+  igual(r.valido, false);
+  contem(r.erros.carrinho, 'fechada');
+});
+
+teste('pedido abaixo do mínimo bloqueia o envio', () => {
+  const r = Loja.validarCheckout(baseValida, { ...ctxOk, abaixoDoMinimo: true, minimo: 5000 });
+  igual(r.valido, false);
+  contem(r.erros.carrinho, '50,00');
+});
+
+/* ============================================================ */
+grupo('MENSAGEM DO WHATSAPP');
+
+const itensPedido = [
+  burger({ qtd: 2, adicionais: [bacon], obs: 'sem cebola' }),
+  burger({ id: 8, nome: 'Fritas Rústicas', precoCentavos: 1990, qtd: 1 })
+];
+
+teste('pedido de ENTREGA monta todos os blocos na ordem', () => {
+  const totais = Loja.calcularTotais(itensPedido, { delivery: { feeRules: [{ tipo: 'bairro', bairros: ['centro'], taxaCentavos: 500 }] } },
+    { tipoPedido: 'entrega', bairro: 'centro' });
+  const msg = Loja.montarMensagem({
+    itens: itensPedido,
+    cliente: {
+      nome: 'Maria Silva', telefone: '(19) 99193-8590', tipoPedido: 'entrega',
+      rua: 'Rua Exemplo', numero: '100', bairro: 'Centro',
+      complemento: 'Apto 12', referencia: 'Portão azul',
+      pagamento: 'dinheiro', trocoParaCentavos: 15000, semTroco: false,
+      observacaoGeral: 'Tocar a campainha'
+    },
+    totais
+  });
+
+  for (const bloco of ['NOVO PEDIDO','CLIENTE','TIPO DO PEDIDO','ENDEREÇO','ITENS','RESUMO','PAGAMENTO','OBSERVAÇÃO GERAL']) {
+    contem(msg, bloco);
+  }
+  contem(msg, '2x The King');
+  contem(msg, 'Adicionais: Bacon extra');
+  contem(msg, 'Observação: sem cebola');
+  contem(msg, 'Taxa de entrega: R$ 5,00'.replace('R$ ', 'R$ ').replace('R$ ', 'R$ ') ? 'Taxa de entrega:' : '');
+  contem(msg, 'Complemento: Apto 12');
+  contem(msg, 'Referência: Portão azul');
+  contem(msg, 'Troco para:');
+});
+
+teste('nunca envia "undefined" nem campo vazio', () => {
+  const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  const msg = Loja.montarMensagem({
+    itens: [burger()],
+    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada', pagamento: 'pix' },
+    totais
+  });
+  naoContem(msg, 'undefined');
+  naoContem(msg, 'null');
+  naoContem(msg, 'Complemento:');
+  naoContem(msg, 'Referência:');
+  naoContem(msg, 'OBSERVAÇÃO GERAL');
+  naoContem(msg, 'Troco para:');
+});
+
+teste('RETIRADA não inclui bloco de endereço nem taxa', () => {
+  const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  const msg = Loja.montarMensagem({
+    itens: [burger()],
+    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada', pagamento: 'pix' },
+    totais
+  });
+  naoContem(msg, 'ENDEREÇO');
+  naoContem(msg, 'Taxa de entrega');
+  contem(msg, 'Retirada');
+});
+
+teste('"não preciso de troco" aparece no lugar do valor', () => {
+  const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'retirada' });
+  const msg = Loja.montarMensagem({
+    itens: [burger()],
+    cliente: { nome: 'João Souza', telefone: '(19) 99999-9999', tipoPedido: 'retirada',
+               pagamento: 'dinheiro', semTroco: true },
+    totais
+  });
+  contem(msg, 'Não precisa de troco');
+  naoContem(msg, 'Troco para:');
+});
+
+teste('taxa indeterminada vira total parcial declarado', () => {
+  const totais = Loja.calcularTotais([burger()], BUSINESS_CONFIG, { tipoPedido: 'entrega' });
+  const msg = Loja.montarMensagem({
+    itens: [burger()],
+    cliente: { nome: 'Ana Lima', telefone: '(19) 99999-9999', tipoPedido: 'entrega',
+               rua: 'Rua X', numero: '1', bairro: 'Centro', pagamento: 'pix' },
+    totais
+  });
+  contem(msg, 'A combinar com a loja');
+  contem(msg, 'Total parcial');
+});
+
+teste('os valores da mensagem batem com os do carrinho', () => {
+  const cfg = { delivery: { feeRules: [{ tipo: 'bairro', bairros: ['centro'], taxaCentavos: 500 }] } };
+  const totais = Loja.calcularTotais(itensPedido, cfg, { tipoPedido: 'entrega', bairro: 'centro' });
+  const msg = Loja.montarMensagem({
+    itens: itensPedido,
+    cliente: { nome: 'Ana Lima', telefone: '(19) 9', tipoPedido: 'entrega',
+               rua: 'R', numero: '1', bairro: 'Centro', pagamento: 'pix' },
+    totais
+  });
+  // 2x(4290+700) + 1990 = 11970 ; + 500 de taxa = 12470
+  igual(totais.subtotal, 11970);
+  igual(totais.total, 12470);
+  contem(msg, Loja.formatarMoeda(12470));
+});
+
+teste('a mensagem é codificada corretamente na URL', () => {
+  const url = Loja.montarUrlWhatsapp('5519991938590', 'Pedido: 2x The King & fritas\nObs: 100% sem cebola');
+  contem(url, 'https://wa.me/5519991938590?text=');
+  naoContem(url, ' ');
+  naoContem(url, '\n');
+  contem(url, '%26');  // &
+  contem(url, '%0A');  // quebra de linha
+  const decodificado = decodeURIComponent(url.split('?text=')[1]);
+  contem(decodificado, '2x The King & fritas');
+});
+
+teste('aceita número com máscara e recusa número vazio', () => {
+  contem(Loja.montarUrlWhatsapp('+55 (19) 99193-8590', 'oi'), 'wa.me/5519991938590');
+  igual(Loja.montarUrlWhatsapp('', 'oi'), null);
+});
+
+/* ============================================================ */
+grupo('DADOS COMERCIAIS AUSENTES');
+
+teste('endereço vazio não gera texto', () => {
+  igual(Loja.enderecoFormatado({}), '');
+  igual(Loja.enderecoFormatado(BUSINESS_CONFIG.address), '');
+  igual(Loja.enderecoFormatado(null), '');
+});
+
+teste('endereço preenchido gera uma linha legível', () => {
+  igual(
+    Loja.enderecoFormatado({ street: 'Rua A', number: '10', neighborhood: 'Centro', city: 'Campinas', state: 'SP' }),
+    'Rua A, 10 — Centro — Campinas — SP'
+  );
+});
+
+teste('a configuração não publica contatos não confirmados', () => {
+  igual(BUSINESS_CONFIG.phone, '');
+  igual(BUSINESS_CONFIG.email, '');
+  igual(BUSINESS_CONFIG.instagram, '');
+  igual(Loja.enderecoFormatado(BUSINESS_CONFIG.address), '');
+  verdadeiro(BUSINESS_CONFIG.whatsapp.length > 10, 'o WhatsApp confirmado deve continuar presente');
+});
+
+teste('máscara de telefone cobre fixo e celular', () => {
+  igual(Loja.formatarTelefone('19991938590'), '(19) 99193-8590');
+  igual(Loja.formatarTelefone('1933334444'), '(19) 3333-4444');
+  igual(Loja.formatarTelefone(''), '');
+});
+
+/* ============================================================ */
+console.log(`\n${'='.repeat(52)}`);
+console.log(`  ${passou} passaram   ${falhou} falharam`);
+console.log('='.repeat(52));
+if (falhou) {
+  falhas.forEach(f => console.log(`  ✗ ${f.nome}`));
+  process.exit(1);
+}
