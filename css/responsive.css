@@ -23,11 +23,9 @@
   .horarios-grade { grid-template-columns: 1fr; gap: 36px; }
   .mapa-card iframe { max-height: 250px; }
 
-  .reservas { margin-top: 90px; padding: 64px 0; }
+  .reservas { padding: 60px 0; }
   .reservas__inner { grid-template-columns: 1fr; gap: 28px; justify-items: center; }
-  /* Empilhado o cartaz volta ao fluxo: com height:0 ele cobriria o texto */
-  .colagem { height: auto; margin: -60px 0 4px; }
-  .colagem__cartaz { max-width: 300px; }
+  .colagem { max-width: 300px; }
 
   .delivery__grade { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; }
 
@@ -135,9 +133,8 @@
   }
   .mapa-card iframe { aspect-ratio: 4 / 3; max-height: 260px; }
 
-  .reservas { margin-top: 80px; padding: 56px 0; }
-  .colagem { height: auto; margin: -48px 0 4px; }
-  .colagem__cartaz { max-width: 240px; border-width: 5px; }
+  .reservas { padding: 48px 0; }
+  .colagem { max-width: 260px; border-width: 5px; }
 
   .footer-v2 { padding-top: 48px; }
   .footer-v2__grade { grid-template-columns: 1fr; gap: 30px; padding-bottom: 32px; }

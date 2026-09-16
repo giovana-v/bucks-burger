@@ -1150,15 +1150,9 @@
 /* ---------- RESERVAS (faixa dourada) ---------- */
 .reservas {
   position: relative;
-  /* Acima da seção de delivery, que vem depois e também é posicionada:
-     sem isso ela pintaria por cima da parte do cartaz que transborda. */
-  z-index: 2;
   background: var(--dourado);
-  padding: 80px 0;
+  padding: 72px 0;
   border-bottom: 5px solid var(--vermelho);
-  /* espaço acima para o cartaz transbordar sem invadir a seção anterior */
-  margin-top: 76px;
-  /* sem overflow:hidden — é o transbordo que faz o efeito da referência */
 }
 .reservas__inner {
   display: grid;
@@ -1168,39 +1162,28 @@
 }
 /* Cartaz da promoção — sobe para fora da faixa dourada,
    mantendo o recorte da referência. */
-/* O cartaz atravessa a faixa dourada: nasce na seção escura de cima e
-   termina depois da borda de baixo, como a colagem da referência.
-   
-   POR QUE height:0 — a tentativa óbvia (margens negativas) não funciona:
-   como o cartaz é o item mais alto da linha do grid, a linha cresce para
-   caber nele e o transbordo some. Com altura zero ele deixa de contar
-   para a altura da linha, que passa a ser ditada só pelo texto, e a
-   imagem sobra metade para cima e metade para baixo. */
+/* Cartaz da promoção.
+   O TAMANHO VEM DA MOLDURA, não da imagem: a <figure> define largura e
+   proporção, e a <img> apenas preenche com object-fit. Assim não importa
+   a dimensão do arquivo (o atual é um story 720x1280), a imagem nunca
+   consegue estourar o layout.
+   O recorte é ancorado no topo, onde ficam título, dia e preço. */
 .colagem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  height: 0;
-  margin: 0;
-  position: relative;   /* z-index só vale em elemento posicionado */
-  z-index: 2;
-}
-/* O arquivo é um story 720x1280 (proporção 0,56). Em qualquer largura
-   útil ele fica mais alto que a faixa inteira, e o transbordo vira
-   invasão. A moldura 3/4 controla a altura, e o object-position no topo
-   preserva toda a informação da promoção — título, dia e preço ficam no
-   terço superior do cartaz. */
-.colagem__cartaz {
   width: 100%;
-  max-width: 360px;
+  max-width: 330px;
   aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: center top;
-  flex: none;
+  margin: 0 auto;
+  overflow: hidden;              /* trava final contra transbordo */
   border: 6px solid var(--preto);
   border-radius: 4px;
   background: var(--preto-3);
+}
+.colagem__cartaz {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .reservas__texto h2 {

@@ -3,6 +3,16 @@
 Site institucional + cardápio + pedido pelo WhatsApp.
 HTML, CSS e JavaScript puros, sem build e sem dependências.
 
+## Cache do navegador
+
+Os links de CSS e JS carregam com `?v=N`. Ao alterar um desses arquivos,
+**incremente o número nas 5 páginas** — senão o navegador continua
+servindo a versão antiga e a mudança parece não ter sido feita:
+
+```bash
+sed -i 's/?v=7/?v=8/g' *.html
+```
+
 ## Rodar
 
 O cardápio é carregado de `data/produtos.json` via `fetch`, então é preciso
