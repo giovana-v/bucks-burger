@@ -1157,7 +1157,7 @@
   padding: 80px 0;
   border-bottom: 5px solid var(--vermelho);
   /* espaço acima para o cartaz transbordar sem invadir a seção anterior */
-  margin-top: 110px;
+  margin-top: 76px;
   /* sem overflow:hidden — é o transbordo que faz o efeito da referência */
 }
 .reservas__inner {
@@ -1186,10 +1186,17 @@
   position: relative;   /* z-index só vale em elemento posicionado */
   z-index: 2;
 }
+/* O arquivo é um story 720x1280 (proporção 0,56). Em qualquer largura
+   útil ele fica mais alto que a faixa inteira, e o transbordo vira
+   invasão. A moldura 3/4 controla a altura, e o object-position no topo
+   preserva toda a informação da promoção — título, dia e preço ficam no
+   terço superior do cartaz. */
 .colagem__cartaz {
   width: 100%;
-  max-width: 400px;
-  height: auto;          /* preserva a proporção: nada de esticar */
+  max-width: 360px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
   flex: none;
   border: 6px solid var(--preto);
   border-radius: 4px;
