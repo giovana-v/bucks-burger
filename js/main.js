@@ -42,9 +42,15 @@ function iniciarMenu() {
 
 function marcarLinkAtivo() {
   const atual = location.pathname.split('/').pop() || 'index.html';
+
   document.querySelectorAll('.nav__link').forEach(link => {
-    const alvo = (link.getAttribute('href') || '').split('#')[0];
-    if (alvo === atual) {
+    const href = link.getAttribute('href') || '';
+
+    // "index.html#reservas" aponta para uma seção, não para a página.
+    // Sem esta guarda, Início e Reservas ficavam marcados ao mesmo tempo.
+    if (href.includes('#')) return;
+
+    if (href === atual) {
       link.classList.add('ativo');
       link.setAttribute('aria-current', 'page');
     }
