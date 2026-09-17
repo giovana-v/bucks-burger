@@ -842,6 +842,91 @@ teste('nenhum arquivo órfão restou em assets/images', () => {
   igual(noDisco.includes('.jpg'), false, 'o arquivo sem nome foi removido');
 });
 
+
+/* ============================================================ */
+grupo('CONTEÚDO E RESILIÊNCIA DAS PÁGINAS');
+
+const fs = require('fs');
+const lerPagina = (nome) => fs.readFileSync(`public/${nome}`, 'utf8');
+const semComentarios = (html) => html.replace(/<!--[\s\S]*?-->/g, '');
+
+teste('concordância corrigida na seção Reservas', () => {
+  const h = lerPagina('index.html').replace(/\s+/g, ' ');
+  contem(h, 'os melhores hambúrgueres');
+  naoContem(h, 'as melhores hambúrgueres');
+});
+
+teste('navegação visível usa "Cardápio", mas a rota continua /cardapio', () => {
+  for (const p of ['index.html', 'cardapio.html', 'produto.html', 'contato.html', '404.html']) {
+    const h = semComentarios(lerPagina(p));
+    naoContem(h, '>Menu<');
+    contem(h, '>Cardápio<');
+    contem(h, 'href="/cardapio"');   // rota intacta
+  }
+});
+
+teste('hero não repete "retire" em duas linhas seguidas', () => {
+  const h = lerPagina('index.html');
+  const bloco = h.slice(h.indexOf('hero-v2__linhas'), h.indexOf('hero-v2__linhas') + 250);
+  const ocorrencias = (bloco.match(/[Rr]etire/g) || []).length;
+  igual(ocorrencias, 1, 'apenas a primeira linha deve usar "retire"');
+});
+
+teste('cardápio não promete tempo de entrega não confirmado', () => {
+  const h = lerPagina('cardapio.html');
+  naoContem(h, '30 min');
+  naoContem(h, '30min');
+});
+
+teste('regiões dinâmicas nascem com estado de carregamento', () => {
+  const casos = [
+    ['cardapio.html', 'gradeProdutos'],
+    ['index.html', 'trilhoSemana'],
+    ['produto.html', 'produtoDetalhe']
+  ];
+  for (const [pagina, id] of casos) {
+    const h = lerPagina(pagina);
+    const trecho = h.slice(h.indexOf(`id="${id}"`), h.indexOf(`id="${id}"`) + 220);
+    contem(trecho, 'aria-busy="true"');
+    contem(trecho, 'aria-live="polite"');
+    contem(trecho, 'Carregando');
+  }
+});
+
+teste('blocos de dados comerciais têm fallback se o JS não rodar', () => {
+  // Fallback é texto NEUTRO — não duplica horário nem endereço,
+  // então continua existindo uma única fonte de verdade (config.js).
+  const h = lerPagina('index.html');
+  // \b no fim evita casar data-endereco-bairro, que é um rótulo curto
+  // acima da linha de endereço: vazio ele colapsa, sem deixar buraco,
+  // e a linha de baixo já traz o fallback.
+  const vazios = h.match(/<(?:div|p)[^>]*data-(?:horarios|endereco|contatos|entrega-aviso)(?![\w-])[^>]*>\s*<\/(?:div|p)>/g);
+  igual(vazios, null, 'nenhum container de dado comercial pode nascer vazio');
+
+  contem(h, 'Consulte nossos horários');
+  // e o fallback não pode conter o dado real, senão viram duas fontes
+  const fallbackHorarios = h.slice(h.indexOf('data-horarios'), h.indexOf('data-horarios') + 160);
+  naoContem(fallbackHorarios, '18:30');
+});
+
+teste('o selo de status nasce oculto, para não virar caixa vazia', () => {
+  const h = lerPagina('index.html');
+  contem(h, 'data-status-loja hidden');
+});
+
+teste('.form__erro tem uma única regra base, sem conflito de cascata', () => {
+  const css = fs.readFileSync('public/css/components.css', 'utf8');
+  const base = (css.match(/^\.form__erro\s*\{/gm) || []).length;
+  igual(base, 1, 'duas declarações base voltariam a mostrar erro ao abrir a página');
+  contem(css, '.form__erro:empty { display: none; }');
+});
+
+teste('spans de erro do contato nascem vazios', () => {
+  const h = lerPagina('contato.html');
+  const spans = h.match(/<span class="form__erro"[^>]*><\/span>/g) || [];
+  igual(spans.length, 4, 'os quatro campos validados devem começar sem mensagem');
+});
+
 /* ============================================================ */
 console.log(`\n${'='.repeat(52)}`);
 console.log(`  ${passou} passaram   ${falhou} falharam`);

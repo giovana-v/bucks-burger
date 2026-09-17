@@ -32,18 +32,32 @@ const Cardapio = (() => {
     } catch (e) {
       console.error('Falha ao carregar produtos.json', e);
       ['gradeProdutos', 'trilhoSemana', 'produtoDetalhe'].forEach(id => {
-        const alvo = document.getElementById(id);
-        if (!alvo) return;
-        alvo.innerHTML = `<p class="estado-vazio">
-          Não foi possível carregar o cardápio.
-          <small>Abra o site por um servidor local (ex.: <code>python3 -m http.server</code>).</small>
-        </p>`;
+        definirEstado(id,
+          'Não foi possível carregar o cardápio. Tente novamente.',
+          ' <button type="button" class="btn btn--pequeno" onclick="location.reload()">Recarregar</button>');
       });
       return false;
     }
   }
 
   const acharProduto = (id) => dados.produtos.find(p => p.id === id);
+
+  /**
+   * Escreve um dos estados da região dinâmica.
+   * As regiões nascem com aria-busy="true" e "Carregando…" no HTML;
+   * aqui encerramos esse estado e dizemos o que aconteceu.
+   * @param {string} id          id do container
+   * @param {string} mensagem    texto do estado; '' apenas encerra o carregando
+   * @param {string} [acao]      HTML opcional de ação (ex.: botão tentar de novo)
+   */
+  function definirEstado(id, mensagem, acao = '') {
+    const alvo = document.getElementById(id);
+    if (!alvo) return;
+    alvo.setAttribute('aria-busy', 'false');
+    if (mensagem) {
+      alvo.innerHTML = `<p class="estado-vazio">${mensagem}${acao}</p>`;
+    }
+  }
 
   /* ---------- Alérgenos (fonte única: Loja.lerAlergenos) ---------- */
   function htmlAlergenos(produto, compacto = false) {
@@ -122,6 +136,17 @@ const Cardapio = (() => {
     const grade = document.getElementById('gradeProdutos');
     if (!grade) return;
 
+    grade.setAttribute('aria-busy', 'false');
+
+    // Catálogo vazio e busca sem resultado são situações diferentes:
+    // a primeira é problema da loja, a segunda é do filtro.
+    if (!dados.produtos.length) {
+      grade.innerHTML = '<p class="estado-vazio">Nenhum produto disponível no momento.</p>';
+      const contadorVazio = document.getElementById('contadorProdutos');
+      if (contadorVazio) contadorVazio.textContent = '';
+      return;
+    }
+
     const lista = filtrar();
     grade.innerHTML = lista.length
       ? lista.map(templateCard).join('')
@@ -139,6 +164,13 @@ const Cardapio = (() => {
     if (!trilho) return;
 
     const burgers = dados.produtos.filter(p => p.categoria === 'burgers').slice(0, DIAS.length);
+
+    trilho.setAttribute('aria-busy', 'false');
+
+    if (!burgers.length) {
+      trilho.innerHTML = '<p class="estado-vazio">Nenhum produto disponível no momento.</p>';
+      return;
+    }
 
     trilho.innerHTML = burgers.map((p, i) => `
       <div class="dia">
@@ -202,6 +234,8 @@ const Cardapio = (() => {
   function renderizarProduto() {
     const box = document.getElementById('produtoDetalhe');
     if (!box) return;
+
+    box.setAttribute('aria-busy', 'false');
 
     const parametro = new URLSearchParams(location.search).get('id');
     const p = acharProduto(Number(parametro));

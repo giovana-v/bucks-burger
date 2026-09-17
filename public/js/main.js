@@ -143,6 +143,7 @@ function renderizarStatusLoja() {
 
   alvos.forEach(alvo => {
     alvo.textContent = '';
+    alvo.hidden = false;          // nasce oculto no HTML, para não virar caixa vazia sem JS
     alvo.classList.toggle('status-loja--aberto', estado.aberto);
     alvo.classList.toggle('status-loja--fechado', !estado.aberto);
 
@@ -205,6 +206,7 @@ function renderizarEndereco() {
 
   document.querySelectorAll('[data-endereco]').forEach(el => {
     el.textContent = linha;
+    el.classList.remove('dado-indisponivel');   // deixa de ser fallback
   });
 
   document.querySelectorAll('[data-endereco-bairro]').forEach(el => {

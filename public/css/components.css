@@ -1879,3 +1879,10 @@ body.modal-aberto { overflow: hidden; }
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
+
+/* Botão pequeno — usado no estado de erro do cardápio */
+.btn--pequeno {
+  padding: 8px 18px;
+  font-size: .72rem;
+  margin-top: 12px;
+}

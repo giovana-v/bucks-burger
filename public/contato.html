@@ -44,9 +44,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
 
-<link rel="stylesheet" href="css/global.css?v=8">
-<link rel="stylesheet" href="css/components.css?v=8">
-<link rel="stylesheet" href="css/responsive.css?v=8">
+<link rel="stylesheet" href="css/global.css?v=9">
+<link rel="stylesheet" href="css/components.css?v=9">
+<link rel="stylesheet" href="css/responsive.css?v=9">
 </head>
 <body>
 
@@ -65,7 +65,7 @@
 
     <nav class="nav" id="nav" aria-label="Menu principal">
       <a class="nav__link" href="/">Início</a>
-      <a class="nav__link" href="/cardapio">Menu</a>
+      <a class="nav__link" href="/cardapio">Cardápio</a>
       <a class="nav__link" href="/#reservas">Reservas</a>
       <a class="nav__link" href="/contato">Nós</a>
     </nav>
@@ -108,18 +108,18 @@
       <div class="bloco-info bloco-info--card">
         <h2>Fale com a loja</h2>
         <!-- Preenchido por js/main.js. Canal não confirmado não aparece. -->
-        <div class="contato-lista" data-contatos></div>
+        <div class="contato-lista" data-contatos><p class="dado-indisponivel">Canais de contato carregando…</p></div>
       </div>
 
       <div class="bloco-info bloco-info--card" data-some-sem-endereco>
         <h2>Endereço</h2>
-        <p data-endereco></p>
+        <p data-endereco class="dado-indisponivel">Consulte nosso endereço pelo WhatsApp.</p>
       </div>
 
       <div class="bloco-info bloco-info--card">
         <h2>Horário de funcionamento</h2>
-        <p class="status-loja status-loja--bloco" data-status-loja></p>
-        <div data-horarios></div>
+        <p class="status-loja status-loja--bloco" data-status-loja hidden></p>
+        <div data-horarios><p class="dado-indisponivel">Consulte nossos horários pelo WhatsApp.</p></div>
       </div>
     </div>
 
@@ -182,13 +182,13 @@
         <h2 class="footer-v2__titulo">Contato</h2>
         <!-- Preenchido por js/main.js a partir de js/config.js.
              Dado não confirmado não vira link. -->
-        <div class="footer-v2__contatos" data-contatos></div>
+        <div class="footer-v2__contatos" data-contatos><p class="dado-indisponivel">Canais de contato carregando…</p></div>
       </div>
 
       <nav class="footer-v2__links" aria-label="Links do rodapé">
         <ul>
           <li><a href="/">Início</a></li>
-          <li><a href="/cardapio">Menu</a></li>
+          <li><a href="/cardapio">Cardápio</a></li>
           <li><a href="/#reservas">Reservas</a></li>
           <li><a href="/contato">Nós</a></li>
         </ul>
@@ -197,11 +197,11 @@
       <div class="footer-v2__info">
         <div class="bloco-info">
           <h3>Horários</h3>
-          <div data-horarios></div>
+          <div data-horarios><p class="dado-indisponivel">Consulte nossos horários pelo WhatsApp.</p></div>
         </div>
         <div class="bloco-info" data-some-sem-endereco>
           <h3>Estamos em</h3>
-          <p data-endereco></p>
+          <p data-endereco class="dado-indisponivel">Consulte nosso endereço pelo WhatsApp.</p>
         </div>
       </div>
     </div>
@@ -245,12 +245,12 @@
 </aside>
 
 <!-- Ordem obrigatória: config -> regras -> componentes -> telas -->
-<script src="js/config.js?v=8"></script>
-<script src="js/loja.js?v=8"></script>
-<script src="js/modal.js?v=8"></script>
-<script src="js/carrinho.js?v=8"></script>
-<script src="js/checkout.js?v=8"></script>
-<script src="js/cardapio.js?v=8"></script>
-<script src="js/main.js?v=8"></script>
+<script src="js/config.js?v=9"></script>
+<script src="js/loja.js?v=9"></script>
+<script src="js/modal.js?v=9"></script>
+<script src="js/carrinho.js?v=9"></script>
+<script src="js/checkout.js?v=9"></script>
+<script src="js/cardapio.js?v=9"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>
