@@ -387,18 +387,21 @@ const Carrinho = (() => {
 
     const bloqueios = [];
     if (vazio()) bloqueios.push('Adicione ao menos um item.');
-    if (!estado.aberto) {
-      bloqueios.push(estado.proximaAbertura
-        ? `${estado.motivo} Abrimos ${estado.proximaAbertura}.`
-        : estado.motivo);
-    }
     if (!totais.atingiuMinimo) {
       bloqueios.push(`Pedido mínimo de ${Loja.formatarMoeda(totais.minimo)}.`);
     }
 
+    const informativos = [];
+    if (!estado.aberto) {
+      informativos.push(estado.proximaAbertura
+        ? `Estamos fechados agora — seu pedido será confirmado quando abrirmos (${estado.proximaAbertura}).`
+        : estado.motivo);
+    }
+
     if (aviso) {
-      aviso.textContent = bloqueios.join(' ');
-      aviso.hidden = bloqueios.length === 0;
+      const texto = bloqueios.length ? bloqueios.join(' ') : informativos.join(' ');
+      aviso.textContent = texto;
+      aviso.hidden = texto === '';
     }
     if (finalizar) finalizar.disabled = bloqueios.length > 0;
 

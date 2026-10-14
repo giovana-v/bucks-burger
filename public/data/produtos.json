@@ -43,13 +43,8 @@
         "Molho Buck's",
         "Pão brioche"
       ],
-      "imagem": "assets/images/the-king.jpg",
-      "galeria": [
-        "assets/images/the-king-1.jpg",
-        "assets/images/the-king-2.jpg",
-        "assets/images/the-king-3.jpg",
-        "assets/images/the-king-4.jpg"
-      ]
+      "imagem": "assets/images/theKing.jpg",
+      "galeria": []
     },
     {
       "id": 2,
@@ -68,7 +63,7 @@
         "Maionese defumada",
         "Pão brioche"
       ],
-      "imagem": "assets/images/classic.jpg",
+      "imagem": "assets/images/bucksclassic.jpeg",
       "galeria": []
     },
     {
@@ -87,7 +82,7 @@
         "Barbecue artesanal",
         "Pão australiano"
       ],
-      "imagem": "assets/images/smoky-bacon.jpg",
+      "imagem": "assets/images/smokybacon.jpeg",
       "galeria": []
     },
     {
@@ -107,7 +102,7 @@
         "Maionese de ervas",
         "Pão integral"
       ],
-      "imagem": "assets/images/green-crown.jpg",
+      "imagem": "assets/images/greencrown.jpeg",
       "galeria": []
     },
     {
@@ -127,7 +122,7 @@
         "Molho chipotle",
         "Pão brioche"
       ],
-      "imagem": "assets/images/double-fire.jpg",
+      "imagem": "assets/images/double.jpeg",
       "galeria": []
     },
     {

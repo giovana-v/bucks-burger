@@ -202,7 +202,7 @@ const Checkout = (() => {
       temItens: itens.length > 0,
       total: totais.total,
       totalParcial: totais.totalParcial,
-      lojaFechada: !estado.aberto,
+      lojaFechada: false,
       abaixoDoMinimo: !totais.atingiuMinimo,
       minimo: totais.minimo
     };
@@ -213,7 +213,7 @@ const Checkout = (() => {
     if (!box) return;
 
     const dados = lerFormulario();
-    const { totais } = contextoAtual(dados);
+    const { totais, estado } = contextoAtual(dados);
 
     box.textContent = '';
     box.appendChild(linha('Subtotal', Loja.formatarMoeda(totais.subtotal)));
@@ -241,6 +241,15 @@ const Checkout = (() => {
       const nota = document.createElement('p');
       nota.className = 'resumo__nota';
       nota.textContent = 'A taxa de entrega será confirmada pela loja no WhatsApp.';
+      box.appendChild(nota);
+    }
+
+    if (!estado.aberto) {
+      const nota = document.createElement('p');
+      nota.className = 'resumo__nota';
+      nota.textContent = estado.proximaAbertura
+        ? `Estamos fechados agora — o pedido será confirmado quando abrirmos (${estado.proximaAbertura}).`
+        : 'Estamos fechados agora — o pedido será confirmado na próxima abertura.';
       box.appendChild(nota);
     }
   }
