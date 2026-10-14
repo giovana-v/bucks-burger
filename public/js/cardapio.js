@@ -10,6 +10,14 @@ const Cardapio = (() => {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 
+  function midiaProduto(p) {
+    const foto = p.imagem
+      ? `<img class="midia-foto" src="${esc(p.imagem)}" alt="${esc(p.nome)}"
+               loading="lazy" decoding="async" onerror="this.remove()">`
+      : '';
+    return `<div class="ph" data-label="Foto&#10;${esc(p.nome)}">${foto}</div>`;
+  }
+
   async function carregar() {
     try {
       const resp = await fetch('data/produtos.json');
@@ -74,7 +82,7 @@ const Cardapio = (() => {
       <article class="card" data-categoria="${esc(p.categoria)}">
         <a class="card__midia" href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
           ${tag}
-          <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
+          ${midiaProduto(p)}
         </a>
         <div class="card__corpo">
           <h3 class="card__titulo">
@@ -147,7 +155,7 @@ const Cardapio = (() => {
         <span class="dia__rotulo">${DIAS[i]}</span>
         <div class="dia__card">
           <a href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
-            <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
+            ${midiaProduto(p)}
           </a>
           <h3 class="dia__nome">${esc(p.nome)}</h3>
           <p class="dia__desc">${esc(p.ingredientes.slice(0, 4).join(', '))}</p>
@@ -462,6 +470,7 @@ const Cardapio = (() => {
         qtd(), [], obsEl.value
       );
       Modal.fechar(dialogRapido);
+      Carrinho.abrir();
     });
   }
 

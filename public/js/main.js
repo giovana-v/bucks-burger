@@ -280,6 +280,63 @@ function atualizarAno() {
   });
 }
 
+function renderizarDadosEstruturados() {
+  if (document.getElementById('ld-negocio')) return;
+
+  const c = BUSINESS_CONFIG;
+  const a = c.address || {};
+
+  const dados = {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: c.name,
+    servesCuisine: 'Hambúrguer artesanal',
+    priceRange: '$$'
+  };
+
+  if (c.siteUrl) {
+    dados.url = c.siteUrl;
+    dados.menu = `${c.siteUrl.replace(/\/$/, '')}/cardapio`;
+  }
+  if (c.whatsapp) dados.telephone = `+${c.whatsapp.replace(/\D/g, '')}`;
+
+  if (a.street && a.city) {
+    dados.address = {
+      '@type': 'PostalAddress',
+      streetAddress: [a.street, a.number].filter(Boolean).join(', '),
+      addressLocality: a.city,
+      addressRegion: a.state,
+      postalCode: a.zipCode,
+      addressCountry: 'BR'
+    };
+  }
+  if (a.coords) {
+    dados.geo = { '@type': 'GeoCoordinates', latitude: a.coords.lat, longitude: a.coords.lng };
+  }
+
+  const diasSchema = {
+    monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday',
+    thursday: 'Thursday', friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday'
+  };
+  const grupos = {};
+  Object.entries(diasSchema).forEach(([chave, nome]) => {
+    const h = (c.businessHours || {})[chave];
+    if (!h || !h.open || !h.close) return;
+    (grupos[`${h.open}|${h.close}`] ||= []).push(nome);
+  });
+  const spec = Object.entries(grupos).map(([faixa, dias]) => {
+    const [opens, closes] = faixa.split('|');
+    return { '@type': 'OpeningHoursSpecification', dayOfWeek: dias, opens, closes };
+  });
+  if (spec.length) dados.openingHoursSpecification = spec;
+
+  const el = document.createElement('script');
+  el.type = 'application/ld+json';
+  el.id = 'ld-negocio';
+  el.textContent = JSON.stringify(dados);
+  document.head.appendChild(el);
+}
+
 function iniciarFormulario() {
   const form = document.getElementById('formContato');
   if (!form) return;
@@ -363,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderizarEndereco();
   renderizarContatos();
   renderizarAvisoEntrega();
+  renderizarDadosEstruturados();
 
   setInterval(renderizarStatusLoja, 60000);
   document.addEventListener('carrossel:pronto', observar);

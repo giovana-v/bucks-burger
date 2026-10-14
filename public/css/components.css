@@ -29,6 +29,14 @@
 .ph[style*="url"]::before { content: ''; }
 .ph--sem-borda { border: none; }
 
+.midia-foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -943,17 +951,20 @@
   background: var(--preto-3);
   border: 1px solid rgba(255,255,255,.07);
   border-radius: 14px;
+  overflow: hidden;
   transition: var(--transicao);
 }
 .dia__card:hover {
   border-color: var(--vermelho);
 }
 .dia__card .ph {
-  width: 120px; height: 100px;
+  width: calc(100% + 40px);
+  height: 200px;
+  margin: -26px -20px 20px;
   min-height: 0;
   border: none;
-  background-color: transparent;
-  margin-bottom: 18px;
+  border-radius: 0;
+  background-color: var(--preto-2);
 }
 .dia__nome {
   font-family: var(--fonte-script);

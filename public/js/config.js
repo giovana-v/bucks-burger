@@ -1,7 +1,7 @@
 const BUSINESS_CONFIG = {
   name: "Buck's Burguer",
 
-  whatsapp: "5519991938590",
+  whatsapp: "5599999999999",
   phone: "",
   email: "",
   instagram: "",

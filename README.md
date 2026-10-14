@@ -71,7 +71,7 @@ Nenhum endereço, telefone ou horário está escrito no HTML.
 ### Contatos comerciais
 
 ```js
-whatsapp:  "5519991938590",   // já configurado
+whatsapp:  "5599999999999",   // placeholder — troque pelo número real
 phone:     "",               // fixo — enquanto vazio, não aparece
 email:     "",               // enquanto vazio, não aparece
 instagram: "",               // só o usuário, sem "@"
