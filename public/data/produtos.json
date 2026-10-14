@@ -1,32 +1,4 @@
 {
-  "_alergenos": {
-    "_leiaMe": "Campos de alérgenos por produto. AMBOS SÃO OPCIONAIS: produtos sem eles continuam funcionando e o site simplesmente não exibe nada sobre alérgenos. Preenchidos, o site passa a mostrar 'Contém: ...' no card, no modal e na página do produto. O site NUNCA afirma que um produto é livre de algo que não foi cadastrado aqui.",
-    "_comoPreencher": {
-      "alergenos": "Lista de textos. Use os termos de _vocabulario. Lista vazia [] significa 'conferido, nenhum alérgeno'. Ausente/null significa 'ainda não conferido'.",
-      "avisoContaminacaoCruzada": "true quando o item é preparado em superfície/fritadeira compartilhada. Exibe 'Consulte a equipe sobre contaminação cruzada'."
-    },
-    "_vocabulario": [
-      "glúten",
-      "lactose",
-      "ovo",
-      "soja",
-      "castanhas",
-      "amendoim",
-      "peixe",
-      "crustáceos",
-      "gergelim"
-    ],
-    "_exemploEstrutura": {
-      "_aviso": "EXEMPLO ILUSTRATIVO — não corresponde a nenhum produto real da loja.",
-      "alergenos": [
-        "glúten",
-        "lactose",
-        "ovo"
-      ],
-      "avisoContaminacaoCruzada": false
-    },
-    "_pendencia": "TODO: nenhum produto tem alérgenos confirmados ainda. Preencha produto a produto junto com a cozinha antes de divulgar."
-  },
   "categorias": [
     {
       "id": "todos",

@@ -7,26 +7,6 @@
 <title>Contato — Buck's Burguer</title>
 <meta name="description" content="Fale com a Buck's Burguer pelo WhatsApp, veja os horários de funcionamento e mande sua mensagem.">
 
-<!-- ================= COMPARTILHAMENTO =================
-     Open Graph e Twitter Card.
-
-     PENDENTE — preencher em js/config.js e depois refletir aqui:
-       1) BUSINESS_CONFIG.siteUrl    -> habilita <link rel="canonical">
-                                        e <meta property="og:url">
-       2) BUSINESS_CONFIG.socialImage -> habilita <meta property="og:image">
-                                        (1200x630 px)
-
-     As linhas abaixo estão comentadas de propósito: apontar para um
-     domínio ou imagem que não existe quebra o preview no WhatsApp.
-     Troque SEU-DOMINIO pelo domínio real e descomente.
-
-     <link rel="canonical" href="https://SEU-DOMINIO/{pagina}">
-     <meta property="og:url" content="https://SEU-DOMINIO/{pagina}">
-     <meta property="og:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
-     <meta property="og:image:width" content="1200">
-     <meta property="og:image:height" content="630">
-     <meta name="twitter:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
-     ==================================================== -->
 <meta property="og:site_name" content="Buck's Burguer">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:type" content="website">
@@ -39,7 +19,6 @@
 
 <link rel="icon" href="assets/images/logo.jpg">
 
-<!-- Fontes: preconnect + link no head carrega antes do CSS terminar -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
@@ -52,7 +31,6 @@
 
 <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
-<!-- ============ HEADER ============ -->
 <header class="header">
   <div class="container header__inner">
     <a class="logo" href="/">
@@ -87,9 +65,7 @@
 
 <main id="conteudo">
 
-<!-- ============ TOPO ============ -->
 <section class="topo-pagina">
-  <!-- IMAGEM DE FUNDO: fachada da loja -> assets/images/contato-topo.jpg -->
   <div class="ph topo-pagina__fundo ph--sem-borda"></div>
   <div class="container topo-pagina__inner">
     <h1>Contato</h1>
@@ -100,14 +76,12 @@
   </div>
 </section>
 
-<!-- ============ CONTATO ============ -->
 <section class="secao">
   <div class="container contato">
 
     <div class="info-contato revelar">
       <div class="bloco-info bloco-info--card">
         <h2>Fale com a loja</h2>
-        <!-- Preenchido por js/main.js. Canal não confirmado não aparece. -->
         <div class="contato-lista" data-contatos><p class="dado-indisponivel">Canais de contato carregando…</p></div>
       </div>
 
@@ -173,15 +147,12 @@
 </section>
 </main>
 
-<!-- ============ RODAPÉ ============ -->
 <footer class="footer-v2">
   <div class="container">
     <div class="footer-v2__grade">
 
       <div>
         <h2 class="footer-v2__titulo">Contato</h2>
-        <!-- Preenchido por js/main.js a partir de js/config.js.
-             Dado não confirmado não vira link. -->
         <div class="footer-v2__contatos" data-contatos><p class="dado-indisponivel">Canais de contato carregando…</p></div>
       </div>
 
@@ -221,7 +192,6 @@
   </div>
 </footer>
 
-<!-- ============ CARRINHO ============ -->
 <div class="overlay" id="overlay"></div>
 <aside class="carrinho" id="carrinhoDrawer" aria-label="Carrinho de compras">
   <div class="carrinho__topo">
@@ -244,7 +214,6 @@
   </div>
 </aside>
 
-<!-- Ordem obrigatória: config -> regras -> componentes -> telas -->
 <script src="js/config.js?v=9"></script>
 <script src="js/loja.js?v=9"></script>
 <script src="js/modal.js?v=9"></script>

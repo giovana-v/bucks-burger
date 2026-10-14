@@ -33,12 +33,6 @@ internos apontam para **URLs limpas** (`/cardapio`, não
 `/cardapio.html`), que só funcionam com o mesmo tratamento de assets
 da produção. Num `python3 -m http.server` a navegação interna dá 404.
 
-Testes das regras de negócio:
-
-```bash
-node tests/testes.js
-```
-
 ## Estrutura
 
 ```
@@ -55,7 +49,6 @@ bucks-burger/
 │   ├── cardapio.js   ← catálogo, carrossel, página de produto
 │   └── main.js       ← header, animações e dados comerciais na tela
 ├── data/produtos.json
-├── tests/testes.js
 └── assets/images · assets/icons
 ```
 

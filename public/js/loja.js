@@ -1,37 +1,20 @@
-/* ============================================================
-   BUCK'S BURGUER — REGRAS DE NEGÓCIO (funções puras)
-   ------------------------------------------------------------
-   Nenhuma função deste arquivo toca no DOM. Isso mantém o
-   cálculo testável (ver tests/testes.js) e garante que carrinho
-   e mensagem do WhatsApp usem exatamente a mesma conta.
-
-   Todo valor monetário circula em CENTAVOS INTEIROS.
-   Reais (float) só aparecem na entrada (produtos.json) e na
-   saída formatada.
-   ============================================================ */
-
 const Loja = (() => {
-
-  /* ================= DINHEIRO ================= */
 
   const formatador = new Intl.NumberFormat('pt-BR', {
     style: 'currency', currency: 'BRL'
   });
 
-  /** Reais (float) -> centavos (int). 42.90 -> 4290 */
   function paraCentavos(reais) {
     const n = Number(reais);
     if (!Number.isFinite(n)) return 0;
     return Math.round(n * 100);
   }
 
-  /** Centavos (int) -> "R$ 42,90" */
   function formatarMoeda(centavos) {
     const n = Number.isFinite(Number(centavos)) ? Number(centavos) : 0;
     return formatador.format(n / 100);
   }
 
-  /** "12,50" | "12.50" | "R$ 12,50" -> 1250 centavos. Inválido -> null */
   function lerValorDigitado(texto) {
     if (texto === null || texto === undefined) return null;
     const limpo = String(texto).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
@@ -41,51 +24,31 @@ const Loja = (() => {
     return Math.round(n * 100);
   }
 
-  /* ================= ITENS DO CARRINHO ================= */
-
-  /**
-   * Identidade de um item. Produto + adicionais + observação.
-   * Observações diferentes = itens diferentes (importante para alergia:
-   * "sem cebola" não pode ser agrupado com o pedido normal).
-   */
   function chaveItem(item) {
     const adicionais = (item.adicionais || []).map(a => a.id).sort().join(',');
     const obs = normalizarObs(item.obs);
     return `${item.id}|${adicionais}|${obs}`;
   }
 
-  /** Normaliza observação: apara, colapsa espaços e corta no limite. */
   const LIMITE_OBS = 200;
   function normalizarObs(texto) {
     return String(texto ?? '').replace(/\s+/g, ' ').trim().slice(0, LIMITE_OBS);
   }
 
-  /** Preço unitário do item (produto + adicionais), em centavos. */
   function precoUnitario(item) {
     const extras = (item.adicionais || [])
       .reduce((soma, a) => soma + (a.precoCentavos || 0), 0);
     return (item.precoCentavos || 0) + extras;
   }
 
-  /** Preço do item já multiplicado pela quantidade, em centavos. */
   function precoItem(item) {
     return precoUnitario(item) * (item.qtd || 0);
   }
 
-  /** Soma de todos os itens, em centavos. */
   function calcularSubtotal(itens) {
     return (itens || []).reduce((soma, item) => soma + precoItem(item), 0);
   }
 
-  /* ================= ENTREGA ================= */
-
-  /**
-   * Decide a taxa de entrega a partir das regras cadastradas.
-   *
-   * @returns {{ situacao: string, centavos: number|null, rotulo: string, gratis: boolean }}
-   *   situacao: 'retirada' | 'gratis' | 'calculada' | 'indeterminada'
-   *   centavos: null quando não há como calcular com os dados atuais.
-   */
   function calcularTaxaEntrega(config, contexto = {}) {
     const { tipoPedido, bairro, cep, distanciaKm } = contexto;
 
@@ -96,16 +59,12 @@ const Loja = (() => {
     const entrega = (config && config.delivery) || {};
     const regras = entrega.feeRules || [];
 
-    // Frete grátis por raio só vale com distância REAL medida.
-    // Sem coordenadas não afirmamos gratuidade.
     if (typeof distanciaKm === 'number' &&
         typeof entrega.freeRadiusKm === 'number' &&
         distanciaKm <= entrega.freeRadiusKm) {
       return { situacao: 'gratis', centavos: 0, rotulo: 'Grátis', gratis: true };
     }
 
-    // Regras cadastradas que não puderam ser avaliadas por falta de
-    // dado. Isso vira aviso no console, para a regra não falhar calada.
     const pendencias = [];
 
     for (const regra of regras) {
@@ -138,7 +97,6 @@ const Loja = (() => {
       }
     }
 
-    // Nenhuma regra aplicável: a loja informa a taxa no atendimento.
     return {
       situacao: 'indeterminada',
       centavos: null,
@@ -162,13 +120,9 @@ const Loja = (() => {
     return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
   }
 
-  /**
-   * Distância em km entre duas coordenadas (fórmula de Haversine).
-   * Só é usada quando a loja e o cliente têm coordenadas válidas.
-   */
   function distanciaEntre(a, b) {
     if (!coordenadaValida(a) || !coordenadaValida(b)) return null;
-    const R = 6371; // raio da Terra em km
+    const R = 6371;
     const rad = (g) => g * Math.PI / 180;
     const dLat = rad(b.lat - a.lat);
     const dLng = rad(b.lng - a.lng);
@@ -182,12 +136,6 @@ const Loja = (() => {
            Math.abs(c.lat) <= 90 && Math.abs(c.lng) <= 180;
   }
 
-  /* ================= TOTAIS ================= */
-
-  /**
-   * Fonte única dos valores mostrados no carrinho, no checkout
-   * e na mensagem do WhatsApp.
-   */
   function calcularTotais(itens, config, contexto = {}) {
     const subtotal = calcularSubtotal(itens);
     const taxa = calcularTaxaEntrega(config, contexto);
@@ -200,8 +148,6 @@ const Loja = (() => {
     return {
       subtotal,
       taxa,
-      // Taxa indeterminada não entra no total: o cliente não pode
-      // ver um total que a loja ainda vai alterar sem avisar.
       total: subtotal + (taxa.centavos || 0),
       totalParcial: taxa.centavos === null,
       minimo,
@@ -209,8 +155,6 @@ const Loja = (() => {
       atingiuMinimo: faltaParaMinimo === 0
     };
   }
-
-  /* ================= HORÁRIO DE FUNCIONAMENTO ================= */
 
   const DIAS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
   const DIAS_PT = {
@@ -224,7 +168,6 @@ const Loja = (() => {
     friday: 'às sextas-feiras', saturday: 'aos sábados'
   };
 
-  /** Lê data/hora no fuso configurado, sem depender do relógio local. */
   function momentoNoFuso(data, timeZone) {
     const fmt = new Intl.DateTimeFormat('en-US', {
       timeZone, weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
@@ -246,10 +189,6 @@ const Loja = (() => {
     return h * 60 + m;
   }
 
-  /**
-   * Estado da loja agora.
-   * @returns {{ aberto, motivo, proximaAbertura, fechamentoIndefinido, configuracaoIncompleta }}
-   */
   function estaAberto(businessHours, agora = new Date()) {
     if (!businessHours) {
       return {
@@ -268,7 +207,6 @@ const Loja = (() => {
       return h && h.close === null;
     });
 
-    // Ontem pode ter varado a madrugada (ex.: 18:00 -> 02:00).
     const ontemKey = DIAS[(diaSemana + 6) % 7];
     const ontem = businessHours[ontemKey];
     if (ontem && ontem.close) {
@@ -309,8 +247,6 @@ const Loja = (() => {
       };
     }
 
-    // Fechamento não confirmado: consideramos aberto a partir do "open"
-    // e sinalizamos a pendência, em vez de inventar um horário.
     const fecha = emMinutos(hoje.close);
     if (fecha === null) {
       return {
@@ -344,11 +280,6 @@ const Loja = (() => {
     return null;
   }
 
-  /**
-   * Agrupa dias consecutivos com o mesmo horário, como na referência:
-   * em vez de sete linhas, sai "Segunda: Fechado" + "Terça a Domingo: ...".
-   * @returns {Array<{rotulo: string, texto: string, fechado: boolean}>}
-   */
   const ORDEM_SEMANA = [
     ['monday', 'Segunda'], ['tuesday', 'Terça'], ['wednesday', 'Quarta'],
     ['thursday', 'Quinta'], ['friday', 'Sexta'], ['saturday', 'Sábado'],
@@ -357,7 +288,6 @@ const Loja = (() => {
 
   function textoDoDia(dia) {
     if (!dia || !dia.open) return 'Fechado';
-    // Fechamento não confirmado: não inventamos um horário de encerramento
     return dia.close ? `${dia.open} às ${dia.close}` : `a partir das ${dia.open}`;
   }
 
@@ -386,13 +316,6 @@ const Loja = (() => {
     }));
   }
 
-  /* ================= ALÉRGENOS ================= */
-
-  /**
-   * Normaliza o campo de alérgenos de um produto.
-   * Produtos cadastrados antes desse campo continuam funcionando:
-   * ausência de dado NÃO é tratada como "livre de alérgenos".
-   */
   function lerAlergenos(produto) {
     const p = produto || {};
     const temCampo = Object.prototype.hasOwnProperty.call(p, 'alergenos');
@@ -404,17 +327,11 @@ const Loja = (() => {
       informado: temCampo && Array.isArray(p.alergenos),
       lista,
       contaminacaoCruzada: p.avisoContaminacaoCruzada === true,
-      // Texto único, usado por card, modal e página de produto.
-      // Sem cadastro, não exibimos nada. Continua valendo que ausência
-      // de dado NÃO é o mesmo que "livre de": o site simplesmente cala,
-      // em vez de afirmar qualquer coisa.
       texto: !temCampo || !Array.isArray(p.alergenos)
         ? ''
         : (lista.length ? `Contém: ${lista.join(', ')}` : 'Nenhum alérgeno cadastrado para este item')
     };
   }
-
-  /* ================= VALIDAÇÃO DO CHECKOUT ================= */
 
   const PAGAMENTOS = {
     dinheiro: 'Dinheiro',
@@ -423,13 +340,8 @@ const Loja = (() => {
     debito: 'Cartão de débito'
   };
 
-  /**
-   * Valida os dados do checkout.
-   * @returns {{ valido: boolean, erros: Object<string,string> }}
-   */
   function validarCheckout(dados = {}, contexto = {}) {
     const erros = {};
-    // avisos não bloqueiam o envio; só informam a cliente
     const avisos = {};
     const v = (c) => String(dados[c] ?? '').trim();
 
@@ -438,9 +350,6 @@ const Loja = (() => {
     } else if (!v('nome').includes(' ')) {
       erros.nome = 'Informe nome e sobrenome.';
     }
-
-    // O telefone não é pedido: o pedido chega pelo próprio WhatsApp
-    // da cliente, então o contato já vem junto da mensagem.
 
     if (!['entrega', 'retirada'].includes(v('tipoPedido'))) {
       erros.tipoPedido = 'Escolha entrega ou retirada.';
@@ -463,16 +372,11 @@ const Loja = (() => {
       if (troco === null) {
         erros.trocoPara = 'Informe o valor ou marque "não preciso de troco".';
       } else if (contexto.total != null && troco < contexto.total) {
-        // contexto.total já vem de calcularTotais, que soma subtotal,
-        // adicionais e a taxa de entrega quando ela é conhecida.
         erros.trocoPara = contexto.totalParcial
-          // Taxa ainda indefinida: o valor cobrado será MAIOR que este.
           ? `O pedido já soma ${formatarMoeda(contexto.total)} sem a taxa de entrega. ` +
             `Informe um valor a partir disso.`
           : `O valor deve ser igual ou maior que ${formatarMoeda(contexto.total)}.`;
       } else if (contexto.totalParcial) {
-        // Passa na validação, mas a cliente precisa saber que ainda
-        // falta somar a taxa. Não é erro: é aviso.
         avisos.trocoPara = 'A taxa de entrega ainda será somada a este total.';
       }
     }
@@ -490,13 +394,6 @@ const Loja = (() => {
     return { valido: Object.keys(erros).length === 0, erros, avisos };
   }
 
-  /**
-   * Valida um campo do formulário de contato.
-   * Pura, para poder ser testada sem DOM.
-   * @returns {{ valido: boolean, mensagem: string }}
-   *   mensagem vazia quando válido — é ela que o span de erro recebe,
-   *   e span vazio é escondido pelo CSS (.form__erro:empty).
-   */
   function validarCampoContato(tipo, valor) {
     const v = String(valor ?? '').trim();
 
@@ -525,27 +422,14 @@ const Loja = (() => {
     return { valido: true, mensagem: '' };
   }
 
-  /* ================= MENSAGEM DO WHATSAPP ================= */
-
-  /**
-   * Junta linhas. Convenção:
-   *   null / undefined -> a linha some (campo vazio nunca é enviado)
-   *   ''               -> linha em branco proposital, que separa blocos
-   */
   const linhas = (...partes) => partes.filter(p => p !== null && p !== undefined).join('\n');
 
   const REGUA = '────────────────';
 
-  /**
-   * Monta a mensagem do pedido no formato combinado.
-   * Função pura: recebe tudo pronto, inclusive o nome da loja.
-   * Usa negrito do WhatsApp (*texto*) nos títulos.
-   */
   function montarMensagem({ itens, cliente, totais, loja = "Buck's Burguer" }) {
     const c = cliente || {};
     const t = totais || {};
 
-    /* ----- Endereço (só entrega) ----- */
     const blocoEndereco = c.tipoPedido === 'entrega' ? linhas(
       '',
       '*ENDEREÇO*',
@@ -555,7 +439,6 @@ const Loja = (() => {
       c.referencia ? `Referência: ${c.referencia}` : null
     ) : null;
 
-    /* ----- Itens, separados por linha em branco ----- */
     const blocoItens = (itens || []).map(item => linhas(
       `*${item.qtd}x ${item.nome}*`,
       `Valor: ${formatarMoeda(precoItem(item))}`,
@@ -565,7 +448,6 @@ const Loja = (() => {
       item.obs ? `Observação: ${item.obs}` : null
     )).join('\n\n');
 
-    /* ----- Resumo ----- */
     const taxaTexto = t.taxa
       ? (t.taxa.centavos === null ? t.taxa.rotulo
         : t.taxa.gratis ? 'Grátis' : formatarMoeda(t.taxa.centavos))
@@ -584,7 +466,6 @@ const Loja = (() => {
       REGUA
     );
 
-    /* ----- Pagamento ----- */
     const troco = c.pagamento === 'dinheiro'
       ? (c.semTroco ? 'Não precisa de troco' : `Troco para: ${formatarMoeda(c.trocoParaCentavos)}`)
       : null;
@@ -596,7 +477,6 @@ const Loja = (() => {
       troco
     );
 
-    /* ----- Observação geral (só se preenchida) ----- */
     const blocoObs = c.observacaoGeral ? linhas(
       '',
       '*OBSERVAÇÃO GERAL*',
@@ -626,28 +506,22 @@ const Loja = (() => {
     );
   }
 
-  /** URL final do WhatsApp, com a mensagem codificada. */
   function montarUrlWhatsapp(numero, mensagem) {
     const digitos = String(numero || '').replace(/\D/g, '');
     if (!digitos) return null;
     return `https://wa.me/${digitos}?text=${encodeURIComponent(mensagem)}`;
   }
 
-  /* ================= FORMATAÇÃO ================= */
-
-  /** Máscara de CEP: 13140-252 */
   function formatarCep(valor) {
     const d = String(valor || '').replace(/\D/g, '').slice(0, 8);
     return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
   }
 
-  /** Só os dígitos do CEP, ou '' se não tiver os 8. */
   function normalizarCep(valor) {
     const d = String(valor || '').replace(/\D/g, '');
     return d.length === 8 ? d : '';
   }
 
-  /** Máscara de telefone: (19) 99193-8590 */
   function formatarTelefone(valor) {
     const d = String(valor || '').replace(/\D/g, '').slice(0, 11);
     if (d.length <= 2) return d.length ? `(${d}` : '';
@@ -656,7 +530,6 @@ const Loja = (() => {
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   }
 
-  /** Endereço completo, com CEP. "" quando não configurado. */
   function enderecoCompleto(address) {
     const a = address || {};
     if (!a.street || !a.city) return '';
@@ -665,21 +538,18 @@ const Loja = (() => {
     return [rua, a.neighborhood, cidade, a.zipCode].filter(Boolean).join(', ');
   }
 
-  /** URL do Google Maps para abrir a rota. "" quando não configurado. */
   function urlMapa(address) {
     const texto = enderecoCompleto(address);
     if (!texto) return '';
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(texto)}`;
   }
 
-  /** URL do mapa embutido. Não exige chave de API. */
   function urlMapaEmbed(address) {
     const texto = enderecoCompleto(address);
     if (!texto) return '';
     return `https://www.google.com/maps?q=${encodeURIComponent(texto)}&z=16&output=embed`;
   }
 
-  /** Endereço da loja em uma linha. "" quando não configurado. */
   function enderecoFormatado(address) {
     const a = address || {};
     if (!a.street || !a.city) return '';

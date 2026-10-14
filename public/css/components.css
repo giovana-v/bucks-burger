@@ -1,12 +1,4 @@
-/* ============================================
-   BUCK'S BURGUER — COMPONENTES
-   ============================================ */
 
-/* ============ PLACEHOLDER DE IMAGEM ============
-   Usado em todo lugar que receberá foto depois.
-   Basta trocar a <div class="ph"> por uma <img>
-   ou definir: style="background-image:url(...)"
-   ================================================ */
 .ph {
   position: relative;
   width: 100%;
@@ -34,11 +26,9 @@
   padding: 10px;
   line-height: 1.5;
 }
-/* Quando a imagem for inserida via style, escondemos o rótulo */
 .ph[style*="url"]::before { content: ''; }
 .ph--sem-borda { border: none; }
 
-/* ================= BOTÕES ================= */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -75,7 +65,6 @@
 }
 .btn--bloco { width: 100%; }
 
-/* ================= HEADER ================= */
 .header {
   position: fixed;
   inset: 0 0 auto 0;
@@ -101,12 +90,11 @@
   width: 100%;
 }
 
-/* Logo */
 .logo { display: flex; align-items: center; gap: 12px; }
 .logo__marca {
   width: 52px; height: 52px;
   flex: none;
-  object-fit: cover;          /* recorta o selo circular da foto */
+  object-fit: cover;
   border: 2px solid var(--vermelho);
   border-radius: 50%;
   background: var(--preto);
@@ -130,7 +118,6 @@
   text-transform: uppercase;
 }
 
-/* Navegação */
 .nav { display: flex; align-items: center; gap: 34px; }
 .nav__link {
   position: relative;
@@ -155,7 +142,6 @@
 
 .header__acoes { display: flex; align-items: center; gap: 14px; }
 
-/* Botão do carrinho */
 .carrinho-btn {
   position: relative;
   width: 46px; height: 46px;
@@ -181,7 +167,6 @@
   border: 2px solid var(--preto);
 }
 
-/* Menu hambúrguer */
 .menu-toggle {
   display: none;
   width: 44px; height: 44px;
@@ -204,7 +189,6 @@
 .menu-toggle.aberto span:nth-child(2) { opacity: 0; }
 .menu-toggle.aberto span:nth-child(3) { top: 21px; transform: rotate(-45deg); }
 
-/* ================= HERO ================= */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -226,7 +210,6 @@
 }
 .hero__midia .ph { aspect-ratio: 1/1; min-height: 380px; border-radius: 50%; }
 
-/* ================= FAIXA CORRIDA ================= */
 .faixa {
   background: var(--vermelho);
   padding: 16px 0;
@@ -259,7 +242,6 @@
   to   { transform: translateX(-50%); }
 }
 
-/* ================= CARD DE PRODUTO ================= */
 .grade-produtos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -354,7 +336,6 @@
 }
 .card__add:hover { background: var(--dourado); color: var(--preto); }
 
-/* ================= FILTROS ================= */
 .filtros {
   display: flex;
   flex-wrap: wrap;
@@ -381,7 +362,6 @@
   color: var(--branco);
 }
 
-/* Busca */
 .busca {
   position: relative;
   max-width: 420px;
@@ -409,7 +389,6 @@
   color: var(--texto-fraco);
 }
 
-/* ================= SOBRE / GALERIA ================= */
 .sobre {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -419,7 +398,6 @@
 .sobre__galeria .ph:first-child { grid-row: span 2; }
 .footer .logo { margin-bottom: 18px; }
 
-/* ================= CARRINHO (drawer) ================= */
 .overlay {
   position: fixed; inset: 0;
   z-index: 190;
@@ -527,7 +505,6 @@
   background: var(--preto-3);
 }
 
-/* ================= TOAST ================= */
 .toast {
   position: fixed;
   bottom: 28px; left: 50%;
@@ -544,7 +521,6 @@
 }
 .toast.visivel { transform: translate(-50%, 0); }
 
-/* ================= PÁGINA INTERNA — TOPO ================= */
 .topo-pagina {
   position: relative;
   padding: calc(var(--header-h) + 80px) 0 80px;
@@ -574,7 +550,6 @@
 .migalhas a:hover { color: var(--dourado); }
 .migalhas span { color: var(--vermelho-texto); }
 
-/* ================= PRODUTO ================= */
 .produto {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -695,7 +670,6 @@
 }
 .seletor-qtd input:focus { outline: none; }
 
-/* ================= FORMULÁRIO ================= */
 .form { display: grid; gap: 18px; }
 .form__linha { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .campo { display: grid; gap: 8px; }
@@ -724,7 +698,6 @@
 }
 .campo input::placeholder, .campo textarea::placeholder { color: var(--texto-fraco); }
 
-/* ================= CONTATO ================= */
 .contato {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
@@ -735,20 +708,7 @@
 
 .mapa { aspect-ratio: 16/7; }
 
-/* ==================================================================
-   ====== LAYOUT DA HOME (baseado na referência) ======
-   ================================================================== */
 
-/* ---------- Trilho social lateral ---------- */
-/* Trilho social ancorado na BORDA da viewport, fora da coluna de
-   conteúdo — como na referência.
-
-   A versão anterior usava a mesma conta do .container, então nascia
-   exatamente na vertical do texto: em 1280px ambos caíam em 64px e o
-   ícone do Instagram sumia atrás do botão branco do CTA.
-
-   Abaixo de 1360px o container encosta na borda e não sobra faixa
-   livre; lá o hero abre um recuo à esquerda (ver responsive.css). */
 .social-rail {
   position: absolute;
   left: clamp(16px, 2vw, 48px);
@@ -759,9 +719,8 @@
   gap: 16px;
 }
 .social-rail a {
-  /* 40px de alvo: o glifo tem 19px, o resto é área de toque */
   width: 40px; height: 40px;
-  margin-left: -10px;      /* o glifo continua alinhado à borda */
+  margin-left: -10px;
   display: flex; align-items: center; justify-content: center;
   color: var(--branco);
   opacity: .8;
@@ -769,7 +728,6 @@
 }
 .social-rail a:hover { color: var(--vermelho); opacity: 1; transform: translateX(3px); }
 
-/* ---------- HERO (v2) ---------- */
 .hero-v2 {
   position: relative;
   min-height: 88vh;
@@ -778,7 +736,6 @@
   padding: calc(var(--header-h) + 56px) 0 120px;
   overflow: hidden;
 }
-/* Banner de fundo do hero */
 .hero-v2__foto {
   position: absolute;
   inset: 0;
@@ -786,11 +743,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* A comida fica à direita da imagem; o texto ocupa a esquerda. */
   object-position: 68% center;
 }
 
-/* Véu que escurece o lado do texto e funde a base com a seção seguinte */
 .hero-v2__veu {
   position: absolute;
   inset: 0;
@@ -818,14 +773,10 @@
   width: 100%;
 }
 
-/* Bloco de texto */
 .hero-v2__h1 {
   margin: 0 0 22px;
-  /* O h1 global força caixa alta; aqui cada parte decide a sua. */
   text-transform: none;
 }
-/* Os dois pedaços do h1 são <span>: sem display:block eles ficariam
-   na mesma linha e as margens verticais seriam ignoradas. */
 .hero-v2__marca,
 .hero-v2__titulo { display: block; }
 
@@ -839,7 +790,7 @@
 .hero-v2__script {
   display: inline-block;
   margin-left: 20px;
-  text-transform: none;   /* na referência é minúsculo, não caixa alta */
+  text-transform: none;
   font-family: var(--fonte-script);
   font-size: clamp(1.4rem, 2.4vw, 2rem);
   color: var(--branco);
@@ -874,7 +825,6 @@
   border-color: var(--dourado);
 }
 
-/* Burger + legendas manuscritas */
 .hero-v2__nota {
   position: absolute;
   z-index: 3;
@@ -887,10 +837,6 @@
 .hero-v2__nota--1 { right: 5%;  bottom: 22%; }
 .hero-v2__nota--2 { right: 16%; bottom: 13%; color: var(--dourado); }
 
-/* Fita "nova receita" */
-/* Etiqueta da novidade: paralelogramo inclinado que sai pela borda
-   direita da tela, como na referência. O skew é desfeito no texto
-   para as letras não ficarem tortas. */
 .fita {
   position: absolute;
   top: calc(var(--header-h) + 42px);
@@ -926,15 +872,12 @@
   color: var(--texto-suave);
 }
 .fita__lista span { white-space: nowrap; }
-/* O "+" é marcador visual, como na referência: fica no CSS para o
-   texto do HTML continuar sendo só o ingrediente. */
 .fita__lista span::before {
   content: '+ ';
   color: var(--dourado);
   font-weight: 800;
 }
 
-/* ---------- MENU DA SEMANA (carrossel) ---------- */
 .semana { padding: 90px 0; background: var(--preto-2); }
 .semana__titulo {
   font-family: var(--fonte-script);
@@ -1028,7 +971,6 @@
 }
 .dia__preco {
   display: inline-block;
-  /* neutraliza o .card__add usado no mesmo botão */
   width: auto; height: auto;
   border: 0; border-radius: 5px;
   font-family: var(--fonte-texto);
@@ -1043,7 +985,6 @@
 }
 .dia__preco:hover { background: var(--vermelho); color: var(--branco); }
 
-/* ---------- HORÁRIOS E UNIDADES ---------- */
 .horarios-sec { padding: 88px 0 64px; }
 .titulo-risco {
   position: relative;
@@ -1076,7 +1017,6 @@
   gap: 44px;
   align-items: start;
 }
-/* Funcionamento | Estamos em, com o fio vertical da referência */
 .horarios-cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -1129,7 +1069,6 @@
 }
 .bloco-info p strong { color: var(--branco); }
 
-/* Cartão do mapa: proporção controlada para não esticar na coluna */
 .mapa-card {
   margin: 0;
   display: grid;
@@ -1141,8 +1080,6 @@
   max-height: 270px;
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 6px;
-  /* O mapa do Google vem claro; escurecer integra ao site sem
-     prejudicar a leitura das ruas. */
   filter: grayscale(.35) brightness(.88) contrast(1.05);
   transition: var(--transicao);
 }
@@ -1155,7 +1092,6 @@
   color: var(--dourado);
 }
 
-/* ---------- RESERVAS (faixa dourada) ---------- */
 .reservas {
   position: relative;
   background: var(--dourado);
@@ -1168,20 +1104,12 @@
   gap: 56px;
   align-items: center;
 }
-/* Cartaz da promoção — sobe para fora da faixa dourada,
-   mantendo o recorte da referência. */
-/* Cartaz da promoção.
-   O TAMANHO VEM DA MOLDURA, não da imagem: a <figure> define largura e
-   proporção, e a <img> apenas preenche com object-fit. Assim não importa
-   a dimensão do arquivo (o atual é um story 720x1280), a imagem nunca
-   consegue estourar o layout.
-   O recorte é ancorado no topo, onde ficam título, dia e preço. */
 .colagem {
   width: 100%;
   max-width: 330px;
   aspect-ratio: 3 / 4;
   margin: 0 auto;
-  overflow: hidden;              /* trava final contra transbordo */
+  overflow: hidden;
   border: 6px solid var(--preto);
   border-radius: 4px;
   background: var(--preto-3);
@@ -1209,7 +1137,6 @@
 .reservas__texto strong { color: var(--preto); }
 .reservas__texto .btn--primario { margin-top: 12px; }
 
-/* ---------- DELIVERY (cards sobre tijolo) ---------- */
 .delivery {
   position: relative;
   padding: 90px 0;
@@ -1251,18 +1178,14 @@
 }
 .vantagem p { font-size: .82rem; color: var(--texto-suave); margin: 0; }
 
-/* ---------- RODAPÉ (v2) ---------- */
 .footer-v2 { background: var(--preto-2); padding: 56px 0 0; }
 .footer-v2__grade {
   display: grid;
-  /* auto-fit: se um bloco estiver oculto (endereço não confirmado),
-     os outros ocupam o espaço em vez de deixar metade vazia. */
   grid-template-columns: minmax(280px, 1.5fr) minmax(130px, .55fr) minmax(240px, 1.1fr);
   gap: 40px;
   padding-bottom: 40px;
   align-items: start;
 }
-/* "Contato" com o risco vermelho embaixo, como na referência */
 .footer-v2__titulo {
   position: relative;
   font-family: var(--fonte-script);
@@ -1307,8 +1230,6 @@
   padding: 14px 0;
   background: var(--vermelho);
 }
-/* O flex precisa estar no container interno: a faixa vermelha é
-   full-bleed, mas o conteúdo segue a largura do .container. */
 .footer-v2__base-inner {
   display: flex;
   align-items: center;
@@ -1321,7 +1242,6 @@
 .footer-v2__base .logo__sub { color: rgba(255,255,255,.85); }
 .footer-v2__base .logo__marca { width: 34px; height: 34px; border-color: var(--branco); }
 
-/* ---------- Observações do cliente ---------- */
 .obs-ajuda {
   font-size: .8rem;
   color: var(--texto-fraco);
@@ -1350,11 +1270,7 @@
   color: var(--texto-fraco);
 }
 
-/* ==================================================================
-   ====== CHECKOUT, MODAIS, STATUS E ALÉRGENOS ======
-   ================================================================== */
 
-/* ---------- Acessibilidade global ---------- */
 .pular-para-conteudo {
   position: absolute;
   left: 12px; top: -60px;
@@ -1369,17 +1285,14 @@
 }
 .pular-para-conteudo:focus { top: 0; }
 
-/* Foco visível e consistente em todo o site */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid var(--dourado);
   outline-offset: 2px;
   border-radius: 3px;
 }
 
-/* Trava o fundo enquanto um diálogo está aberto */
 body.modal-aberto { overflow: hidden; }
 
-/* Botões desabilitados precisam PARECER desabilitados */
 .btn:disabled,
 .btn[disabled] {
   background: var(--preto-3);
@@ -1389,7 +1302,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .btn:disabled:hover { background: var(--preto-3); border-color: rgba(255,255,255,.12); }
 
-/* ---------- Situação da loja ---------- */
 .status-loja {
   display: inline-flex;
   align-items: center;
@@ -1430,7 +1342,6 @@ body.modal-aberto { overflow: hidden; }
   border-radius: var(--radius-sm);
 }
 
-/* ---------- Horários e blocos de informação ---------- */
 .horario-linha {
   margin: 0 0 10px;
   font-size: .84rem;
@@ -1466,7 +1377,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .dado-indisponivel { color: var(--texto-fraco); font-style: italic; font-size: .85rem; }
 
-/* ---------- Links de contato ---------- */
 .contato-item {
   display: flex;
   align-items: center;
@@ -1477,7 +1387,6 @@ body.modal-aberto { overflow: hidden; }
 .contato-item svg { color: var(--dourado); flex: none; }
 .contato-item:hover { color: var(--branco); }
 .contato-lista { display: grid; gap: 14px; }
-/* ---------- Alérgenos ---------- */
 .alergenos { margin: 12px 0; }
 .alergenos__linha {
   display: flex;
@@ -1514,7 +1423,6 @@ body.modal-aberto { overflow: hidden; }
 .produto__bloco .alergenos { margin-top: 0; }
 .produto__bloco .alergenos__linha { font-size: .88rem; }
 
-/* ---------- Estados vazios ---------- */
 .estado-vazio {
   grid-column: 1 / -1;
   padding: 48px 20px;
@@ -1533,7 +1441,6 @@ body.modal-aberto { overflow: hidden; }
 .estado-vazio--pagina h2 { color: var(--branco); margin-bottom: 10px; }
 .estado-vazio--pagina p { margin-bottom: 24px; }
 
-/* ---------- Observação inline no carrinho ---------- */
 .item-carrinho__corpo { min-width: 0; }
 .item-carrinho__extras { margin: 2px 0 0; font-size: .74rem; color: var(--texto-fraco); }
 
@@ -1582,7 +1489,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .obs-inline__salvar:hover { background: var(--vermelho); color: var(--branco); }
 
-/* ---------- Resumo de valores ---------- */
 .resumo { display: grid; gap: 8px; margin-bottom: 14px; }
 .resumo__linha {
   display: flex;
@@ -1626,9 +1532,6 @@ body.modal-aberto { overflow: hidden; }
   color: var(--texto-suave);
 }
 
-/* ==================================================================
-   DIÁLOGOS (<dialog> nativo)
-   ================================================================== */
 .dialogo {
   width: min(560px, calc(100vw - 32px));
   max-height: calc(100vh - 48px);
@@ -1705,7 +1608,6 @@ body.modal-aberto { overflow: hidden; }
 .dialogo__rodape .btn,
 .checkout__rodape .btn { flex: 1; }
 
-/* ---------- Formulário do checkout ---------- */
 .checkout__bloco {
   margin: 0 0 22px;
   padding: 0 0 20px;
@@ -1734,7 +1636,6 @@ body.modal-aberto { overflow: hidden; }
 .checkout .campo:last-child { margin-bottom: 0; }
 .form__linha--rua { grid-template-columns: 2fr 1fr; }
 
-/* Opções (rádios) */
 .opcoes { display: grid; gap: 10px; }
 .opcoes--grade { grid-template-columns: repeat(2, 1fr); }
 .opcao {
@@ -1766,7 +1667,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .checkbox input { accent-color: var(--vermelho); width: 17px; height: 17px; }
 
-/* Erros */
 .form__erro {
   display: block;
   min-height: 0;
@@ -1806,15 +1706,12 @@ body.modal-aberto { overflow: hidden; }
 }
 .checkout__resumo .resumo__linha--total strong { font-size: 1.5rem; }
 
-/* Miniaturas viram botões */
 .miniatura { padding: 0; cursor: pointer; }
 .miniatura.ativa { border-color: var(--vermelho); border-style: solid; }
 
-/* Apoio de seção */
 .secao__apoio { color: var(--texto-suave); margin-bottom: 26px; }
 .texto-vermelho { font-style: normal; color: var(--vermelho-texto); }
 
-/* ---------- Página 404 ---------- */
 .erro-404__codigo {
   font-family: var(--fonte-titulo);
   font-size: clamp(4.5rem, 16vw, 9rem);
@@ -1831,7 +1728,6 @@ body.modal-aberto { overflow: hidden; }
   margin-top: 30px;
 }
 
-/* Nota explicativa dentro do checkout */
 .checkout__nota {
   margin: 0;
   padding: 11px 13px;
@@ -1843,7 +1739,6 @@ body.modal-aberto { overflow: hidden; }
   color: var(--texto-suave);
 }
 
-/* Esvaziar carrinho — ação secundária, discreta */
 .carrinho__limpar {
   display: block;
   width: 100%;
@@ -1861,7 +1756,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .carrinho__limpar:hover { color: var(--vermelho-texto); }
 
-/* Foto principal do produto sobre o placeholder */
 .produto__foto {
   position: absolute;
   inset: 0;
@@ -1871,7 +1765,6 @@ body.modal-aberto { overflow: hidden; }
 }
 .produto__foto[hidden] { display: none; }
 
-/* Foto do item no carrinho */
 .item-carrinho__foto {
   width: 68px;
   height: 68px;
@@ -1880,7 +1773,6 @@ body.modal-aberto { overflow: hidden; }
   border-radius: var(--radius-sm);
 }
 
-/* Botão pequeno — usado no estado de erro do cardápio */
 .btn--pequeno {
   padding: 8px 18px;
   font-size: .72rem;

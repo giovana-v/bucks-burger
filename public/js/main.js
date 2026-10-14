@@ -1,16 +1,3 @@
-/* ============================================================
-   BUCK'S BURGUER — INTERFACE GERAL
-   ------------------------------------------------------------
-   Header, menu, carrossel, animações e — importante — a
-   renderização dos DADOS COMERCIAIS a partir de js/config.js.
-
-   Regra: nada de endereço, telefone, e-mail ou @ escrito no
-   HTML. Se o dado não estiver confirmado na configuração, o
-   bloco simplesmente não aparece (em vez de exibir um valor
-   inventado).
-   ============================================================ */
-
-/* ---------- Header ---------- */
 function iniciarHeader() {
   const header = document.querySelector('.header');
   if (!header) return;
@@ -19,7 +6,6 @@ function iniciarHeader() {
   window.addEventListener('scroll', atualizar, { passive: true });
 }
 
-/* ---------- Menu mobile ---------- */
 function iniciarMenu() {
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('.nav');
@@ -41,9 +27,6 @@ function iniciarMenu() {
 }
 
 function marcarLinkAtivo() {
-  /* Normaliza para comparar produção e desenvolvimento sob a mesma
-     régua: em produção as URLs são limpas (/cardapio), num servidor
-     estático simples são arquivos (/cardapio.html). */
   const normalizar = (caminho) => {
     const semAncora = String(caminho).split('#')[0].split('?')[0];
     const ultimo = semAncora.replace(/\/+$/, '').split('/').pop();
@@ -55,8 +38,6 @@ function marcarLinkAtivo() {
   document.querySelectorAll('.nav__link').forEach(link => {
     const href = link.getAttribute('href') || '';
 
-    // "/#reservas" aponta para uma seção, não para a página. Sem esta
-    // guarda, Início e Reservas ficavam marcados ao mesmo tempo.
     if (href.includes('#')) return;
 
     if (normalizar(href) === atual) {
@@ -66,8 +47,6 @@ function marcarLinkAtivo() {
   });
 }
 
-/* ---------- Revelação ao rolar ----------
-   Observa também o que for inserido depois pelo cardapio.js. */
 let observadorRevelar = null;
 
 function iniciarRevelar() {
@@ -95,14 +74,12 @@ function observar() {
   });
 }
 
-/* ---------- Faixa corrida ---------- */
 function iniciarFaixa() {
   document.querySelectorAll('.faixa__trilho').forEach(trilho => {
     trilho.innerHTML += trilho.innerHTML;
   });
 }
 
-/* ---------- Carrossel do menu da semana ---------- */
 function iniciarCarrossel() {
   document.querySelectorAll('.carrossel').forEach(carrossel => {
     const trilho = carrossel.querySelector('.carrossel__trilho');
@@ -130,11 +107,6 @@ function iniciarCarrossel() {
   });
 }
 
-/* ============================================================
-   DADOS COMERCIAIS — tudo vem de BUSINESS_CONFIG
-   ============================================================ */
-
-/** Situação da loja (aberto/fechado), onde houver [data-status-loja]. */
 function renderizarStatusLoja() {
   const alvos = document.querySelectorAll('[data-status-loja]');
   if (!alvos.length) return;
@@ -143,7 +115,7 @@ function renderizarStatusLoja() {
 
   alvos.forEach(alvo => {
     alvo.textContent = '';
-    alvo.hidden = false;          // nasce oculto no HTML, para não virar caixa vazia sem JS
+    alvo.hidden = false;
     alvo.classList.toggle('status-loja--aberto', estado.aberto);
     alvo.classList.toggle('status-loja--fechado', !estado.aberto);
 
@@ -152,7 +124,6 @@ function renderizarStatusLoja() {
     ponto.setAttribute('aria-hidden', 'true');
 
     const texto = document.createElement('span');
-    // O ícone é redundante: o texto sozinho já informa a situação.
     texto.textContent = estado.aberto ? 'Aberto agora' : 'Fechado agora';
 
     alvo.append(ponto, texto);
@@ -165,7 +136,6 @@ function renderizarStatusLoja() {
   });
 }
 
-/** Lista de horários, com dias consecutivos agrupados (ver Loja.agruparHorarios). */
 function renderizarHorarios() {
   const alvos = document.querySelectorAll('[data-horarios]');
   if (!alvos.length) return;
@@ -192,13 +162,10 @@ function renderizarHorarios() {
   });
 }
 
-/** Endereço, bairro, link de rota e mapa — tudo a partir de BUSINESS_CONFIG. */
 function renderizarEndereco() {
   const a = BUSINESS_CONFIG.address;
   const linha = Loja.enderecoCompleto(a);
 
-  // Sem endereço confirmado, escondemos a seção inteira em vez de
-  // mostrar um texto vazio ou inventado.
   if (!linha) {
     document.querySelectorAll('[data-some-sem-endereco]').forEach(el => { el.hidden = true; });
     return;
@@ -206,7 +173,7 @@ function renderizarEndereco() {
 
   document.querySelectorAll('[data-endereco]').forEach(el => {
     el.textContent = linha;
-    el.classList.remove('dado-indisponivel');   // deixa de ser fallback
+    el.classList.remove('dado-indisponivel');
   });
 
   document.querySelectorAll('[data-endereco-bairro]').forEach(el => {
@@ -219,9 +186,6 @@ function renderizarEndereco() {
     el.href = rota;
   });
 
-  // O mapa só é revelado quando há URL válida. Se o JS não rodar, o
-  // figure continua com [hidden] e a cliente ainda tem o endereço em
-  // texto e o link "Como chegar".
   const embed = Loja.urlMapaEmbed(a);
   document.querySelectorAll('[data-mapa-embed]').forEach(el => {
     const cartao = el.closest('.mapa-card');
@@ -231,7 +195,6 @@ function renderizarEndereco() {
   });
 }
 
-/** Links de contato: só renderiza o que existe e é válido. */
 function renderizarContatos() {
   const c = BUSINESS_CONFIG;
 
@@ -268,7 +231,6 @@ function renderizarContatos() {
     links.forEach(l => alvo.appendChild(l));
   });
 
-  // Ícones sociais avulsos (hero, rodapé)
   document.querySelectorAll('[data-social="instagram"]').forEach(el => {
     if (!c.instagram) { el.hidden = true; return; }
     el.href = `https://instagram.com/${c.instagram.replace(/^@/, '')}`;
@@ -285,9 +247,9 @@ function linkContato(href, texto, rotulo, svg) {
   a.href = href;
   a.setAttribute('aria-label', `${rotulo}: ${texto}`);
   if (href.startsWith('http')) { a.target = '_blank'; a.rel = 'noopener'; }
-  a.innerHTML = svg;                       // SVG estático nosso, sem dado externo
+  a.innerHTML = svg;
   const span = document.createElement('span');
-  span.textContent = texto;                // o dado entra como texto
+  span.textContent = texto;
   a.appendChild(span);
   return a;
 }
@@ -297,7 +259,6 @@ const iconeTelefone = () => `<svg width="17" height="17" viewBox="0 0 24 24" fil
 const iconeEmail = () => `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>`;
 const iconeInstagram = () => `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>`;
 
-/** Aviso de entrega — só promete o que o sistema consegue validar. */
 function renderizarAvisoEntrega() {
   const alvos = document.querySelectorAll('[data-entrega-aviso]');
   if (!alvos.length) return;
@@ -313,22 +274,16 @@ function renderizarAvisoEntrega() {
   });
 }
 
-/* ---------- Ano no rodapé ---------- */
 function atualizarAno() {
   document.querySelectorAll('[data-ano]').forEach(el => {
     el.textContent = String(new Date().getFullYear());
   });
 }
 
-/* ---------- Formulário de contato ----------
-   Mesmo sistema de erros do checkout: o span nasce vazio no HTML e o
-   JS escreve a mensagem. O CSS esconde span vazio (.form__erro:empty),
-   então nada aparece antes de o cliente errar algo. */
 function iniciarFormulario() {
   const form = document.getElementById('formContato');
   if (!form) return;
 
-  /** Descobre que tipo de validação o campo pede. */
   const tipoDoCampo = (input) => {
     if (input.type === 'email') return 'email';
     if (input.type === 'tel') return 'tel';
@@ -338,12 +293,12 @@ function iniciarFormulario() {
 
   const validar = (campo) => {
     const input = campo.querySelector('input, textarea');
-    if (!input) return true;                       // <select> não é validado
+    if (!input) return true;
 
     const { valido, mensagem } = Loja.validarCampoContato(tipoDoCampo(input), input.value);
 
     const erro = campo.querySelector('.form__erro');
-    if (erro) erro.textContent = mensagem;         // '' quando válido -> some
+    if (erro) erro.textContent = mensagem;
     campo.classList.toggle('invalido', !valido);
     input.setAttribute('aria-invalid', String(!valido));
 
@@ -361,7 +316,6 @@ function iniciarFormulario() {
     const input = campo.querySelector('input, textarea');
     if (!input) return;
     input.addEventListener('blur', () => validar(campo));
-    // Assim que a cliente começa a corrigir, o erro some
     input.addEventListener('input', () => {
       if (campo.classList.contains('invalido')) limparErro(campo);
     });
@@ -376,7 +330,6 @@ function iniciarFormulario() {
       return;
     }
 
-    // Sem backend: a mensagem segue pelo WhatsApp da loja.
     const texto = [
       'CONTATO PELO SITE', '',
       `Nome: ${form.nome.value.trim()}`,
@@ -395,7 +348,6 @@ function iniciarFormulario() {
   tel?.addEventListener('input', () => { tel.value = Loja.formatarTelefone(tel.value); });
 }
 
-/* ---------- Boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   iniciarHeader();
   iniciarMenu();
@@ -412,8 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderizarContatos();
   renderizarAvisoEntrega();
 
-  // Atualiza a situação da loja a cada minuto
   setInterval(renderizarStatusLoja, 60000);
-  // Observa os cards que o cardapio.js insere depois
   document.addEventListener('carrossel:pronto', observar);
 });

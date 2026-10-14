@@ -1,19 +1,11 @@
-/* ============================================
-   BUCK'S BURGUER — GLOBAL
-   Base, tokens, tipografia e utilitários
-   ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Paleta da marca */
   --preto:        #0B0B0B;
   --preto-2:      #141414;
   --preto-3:      #1C1C1C;
-  --vermelho:     #C51F28;   /* fundos, botões, bordas, badges */
-  /* Vermelho só para TEXTO sobre fundo escuro. O #C51F28 dá apenas
-     2,92:1 sobre #1C1C1C, abaixo do mínimo AA de 4,5:1.
-     Este tom dá 5,02:1 e mantém a leitura da marca. */
+  --vermelho:     #C51F28;
   --vermelho-texto: #E85D64;
   --vermelho-esc: #8E141B;
   --branco:       #FFFFFF;
@@ -22,24 +14,20 @@
   --verde:        #567B32;
   --marrom:       #713A22;
 
-  /* Texto */
   --texto:        #F2F2F2;
   --texto-suave:  #B9B9B9;
-  --texto-fraco:  #8A8A8A;   /* 4,94:1 sobre #1C1C1C (o antigo #7E7E7E dava 4,20:1) */
+  --texto-fraco:  #8A8A8A;
 
-  /* Tipografia */
   --fonte-titulo: 'Anton', 'Arial Black', sans-serif;
   --fonte-texto:  'Montserrat', system-ui, sans-serif;
   --fonte-script: 'Caveat', 'Segoe Script', cursive;
 
-  /* Layout */
   --container:    1200px;
-  --gutter:       24px;   /* recuo lateral do .container e do trilho social */
+  --gutter:       24px;
   --radius:       10px;
   --radius-sm:    6px;
   --header-h:     84px;
 
-  /* Efeitos */
   --transicao:    .2s ease;
 }
 
@@ -78,7 +66,6 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
 
 p { margin: 0 0 1rem; }
 
-/* ---------- Layout ---------- */
 .container {
   width: 100%;
   max-width: var(--container);
@@ -90,7 +77,6 @@ p { margin: 0 0 1rem; }
 .secao--escura { background: var(--preto-2); }
 .secao--vermelha { background: var(--vermelho); }
 
-/* ---------- Títulos de seção ---------- */
 .titulo-secao {
   text-align: center;
   margin-bottom: 56px;
@@ -125,7 +111,6 @@ p { margin: 0 0 1rem; }
   border-radius: 2px;
 }
 
-/* ---------- Utilitários ---------- */
 .texto-dourado { color: var(--dourado); }
 .texto-vermelho { color: var(--vermelho); }
 .centro { text-align: center; }
@@ -135,7 +120,6 @@ p { margin: 0 0 1rem; }
   clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-/* ---------- Texturas de fundo ---------- */
 .fundo-tijolo {
   background-color: var(--preto);
   background-image:
@@ -145,7 +129,6 @@ p { margin: 0 0 1rem; }
   background-position: center;
 }
 
-/* ---------- Animação de entrada ---------- */
 .revelar {
   opacity: 0;
   transform: translateY(28px);
@@ -164,7 +147,6 @@ p { margin: 0 0 1rem; }
   }
 }
 
-/* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--preto-2); }
 ::-webkit-scrollbar-thumb { background: var(--vermelho-esc); border-radius: 5px; }

@@ -1,23 +1,6 @@
-/* ============================================================
-   BUCK'S BURGUER — CHECKOUT
-   ------------------------------------------------------------
-   Etapa de identificação antes de abrir o WhatsApp.
-
-   O formulário é montado aqui (uma única vez, em qualquer
-   página) para não duplicar markup nos quatro HTML.
-   Validação e mensagem vêm de js/loja.js — este arquivo só
-   cuida de DOM e eventos.
-
-   PRIVACIDADE: os dados pessoais ficam apenas em memória e no
-   formulário. Nada é gravado em localStorage nem enviado a
-   terceiros — só seguem para o WhatsApp da loja, por ação
-   explícita do cliente.
-   ============================================================ */
-
 const Checkout = (() => {
   let dialog = null;
 
-  /* ---------- Markup (estático, sem dado do cliente) ---------- */
   const TEMPLATE = `
     <form class="checkout" id="formCheckout" novalidate>
       <header class="checkout__topo">
@@ -151,7 +134,6 @@ const Checkout = (() => {
       </footer>
     </form>`;
 
-  /* ---------- Montagem ---------- */
   function montar() {
     if (document.getElementById('checkoutDialog')) return;
 
@@ -168,18 +150,14 @@ const Checkout = (() => {
 
   const $ = (id) => document.getElementById(id);
 
-  /* ---------- Campos condicionais ---------- */
   function atualizarCondicionais() {
     const tipo = valorRadio('tipoPedido');
     const pagamento = valorRadio('pagamento');
 
-    // Endereço só para entrega
     const blocoEndereco = $('blocoEndereco');
     blocoEndereco.hidden = tipo !== 'entrega';
-    // hidden não basta: campos escondidos não podem ser focados nem validados
     blocoEndereco.disabled = tipo !== 'entrega';
 
-    // Troco só no dinheiro
     const blocoTroco = $('blocoTroco');
     blocoTroco.hidden = pagamento !== 'dinheiro';
     $('campoTroco').hidden = $('ckSemTroco').checked;
@@ -192,7 +170,6 @@ const Checkout = (() => {
     return el ? el.value : '';
   }
 
-  /* ---------- Leitura dos dados ---------- */
   function lerFormulario() {
     const tipo = valorRadio('tipoPedido');
     return {
@@ -217,8 +194,6 @@ const Checkout = (() => {
       tipoPedido: dados.tipoPedido,
       bairro: dados.bairro,
       cep: Loja.normalizarCep(dados.cep)
-      // distanciaKm não é passado: o projeto não calcula distância.
-      // Ver a pendência reportada em totais.taxa.pendencias.
     });
     const estado = Loja.estaAberto(BUSINESS_CONFIG.businessHours);
 
@@ -233,7 +208,6 @@ const Checkout = (() => {
     };
   }
 
-  /* ---------- Resumo ao vivo ---------- */
   function atualizarResumo() {
     const box = $('checkoutResumo');
     if (!box) return;
@@ -261,8 +235,6 @@ const Checkout = (() => {
     total.classList.add('resumo__linha--total');
     box.appendChild(total);
 
-    // Regra de taxa cadastrada mas não avaliada por falta de dado:
-    // avisa no console em vez de falhar em silêncio.
     (totais.taxa.pendencias || []).forEach(p => console.warn('[entrega]', p));
 
     if (totais.totalParcial) {
@@ -282,7 +254,6 @@ const Checkout = (() => {
     return el;
   }
 
-  /* ---------- Erros ---------- */
   const CAMPO_DE_ERRO = {
     nome: 'ckNome', rua: 'ckRua', numero: 'ckNumero',
     bairro: 'ckBairro', cep: 'ckCep', trocoPara: 'ckTroco',
@@ -298,7 +269,6 @@ const Checkout = (() => {
     geral.hidden = true;
   }
 
-  /** Mostra cada mensagem junto do seu campo (sem alert). */
   function mostrarErros(erros) {
     limparErros();
 
@@ -319,13 +289,11 @@ const Checkout = (() => {
       }
     });
 
-    // Leva o foco ao primeiro problema
     const primeiro = document.querySelector('#formCheckout [aria-invalid="true"]');
     if (primeiro) primeiro.focus();
     else if (!$('checkoutErroGeral').hidden) $('checkoutErroGeral').focus();
   }
 
-  /* ---------- Envio ---------- */
   function enviar(e) {
     e.preventDefault();
 
@@ -333,7 +301,6 @@ const Checkout = (() => {
     const ctx = contextoAtual(dados);
     const { valido, erros, avisos } = Loja.validarCheckout(dados, ctx);
 
-    // Em caso de erro nada é limpo: o cliente não reescreve o formulário.
     if (!valido) {
       mostrarErros(erros);
       return;
@@ -364,13 +331,10 @@ const Checkout = (() => {
 
     Modal.fechar(dialog);
 
-    // NÃO limpamos o carrinho sozinhos: abrir o WhatsApp não garante
-    // que a mensagem foi enviada. A cliente decide, pelo carrinho.
     Carrinho.toast('Pedido montado no WhatsApp. Confira e envie por lá.');
     Carrinho.abrir();
   }
 
-  /* ---------- Eventos ---------- */
   function ligarEventos() {
     const form = $('formCheckout');
 
@@ -383,18 +347,15 @@ const Checkout = (() => {
 
     form.addEventListener('submit', enviar);
 
-    // Máscara do CEP; o resumo recalcula porque a taxa pode depender dele
     const cep = $('ckCep');
     cep.addEventListener('input', () => {
       cep.value = Loja.formatarCep(cep.value);
       atualizarResumo();
     });
 
-    // Contador da observação
     const obs = $('ckObs');
     obs.addEventListener('input', () => { $('ckObsContador').textContent = String(obs.value.length); });
 
-    // Revalida o campo assim que o cliente corrige
     form.addEventListener('input', (e) => {
       const campo = e.target.closest('.campo');
       if (campo?.classList.contains('invalido')) {
@@ -406,7 +367,6 @@ const Checkout = (() => {
     });
   }
 
-  /* ---------- Abertura ---------- */
   function abrir(gatilho) {
     montar();
 
@@ -419,9 +379,6 @@ const Checkout = (() => {
     atualizarCondicionais();
     Carrinho.fechar();
 
-    // O foco NÃO volta para o botão "Finalizar": ele fica dentro do
-    // carrinho, que acabou de virar inert. Devolvemos para o ícone
-    // do carrinho no header, que continua visível e focável.
     const destinoDoFoco = document.getElementById('carrinhoAbrir') || gatilho;
     Modal.abrir(dialog, { gatilho: destinoDoFoco, focoInicial: '#ckNome' });
   }

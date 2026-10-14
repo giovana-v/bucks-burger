@@ -7,26 +7,6 @@
 <title>Buck's Burguer — Hamburgueria artesanal</title>
 <meta name="description" content="Hamburgueria artesanal Buck's Burguer. Blend próprio, pão brioche e ingredientes selecionados. Peça pelo site e receba em casa ou retire no balcão.">
 
-<!-- ================= COMPARTILHAMENTO =================
-     Open Graph e Twitter Card.
-
-     PENDENTE — preencher em js/config.js e depois refletir aqui:
-       1) BUSINESS_CONFIG.siteUrl    -> habilita <link rel="canonical">
-                                        e <meta property="og:url">
-       2) BUSINESS_CONFIG.socialImage -> habilita <meta property="og:image">
-                                        (1200x630 px)
-
-     As linhas abaixo estão comentadas de propósito: apontar para um
-     domínio ou imagem que não existe quebra o preview no WhatsApp.
-     Troque SEU-DOMINIO pelo domínio real e descomente.
-
-     <link rel="canonical" href="https://SEU-DOMINIO/{pagina}">
-     <meta property="og:url" content="https://SEU-DOMINIO/{pagina}">
-     <meta property="og:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
-     <meta property="og:image:width" content="1200">
-     <meta property="og:image:height" content="630">
-     <meta name="twitter:image" content="https://SEU-DOMINIO/assets/images/og-capa.jpg">
-     ==================================================== -->
 <meta property="og:site_name" content="Buck's Burguer">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:type" content="website">
@@ -39,7 +19,6 @@
 
 <link rel="icon" href="assets/images/logo.jpg">
 
-<!-- Fontes: preconnect + link no head carrega antes do CSS terminar -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@500;700&family=Montserrat:wght@400;500;600;700;800&display=swap">
@@ -52,7 +31,6 @@
 
 <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
 
-<!-- ============ HEADER ============ -->
 <header class="header">
   <div class="container header__inner">
     <a class="logo" href="/">
@@ -87,11 +65,7 @@
 
 <main id="conteudo">
 
-<!-- ============ HERO ============ -->
 <section class="hero-v2">
-  <!-- Banner do hero. alt vazio porque é imagem decorativa: o texto ao
-       lado já diz tudo, e um alt aqui só repetiria a leitura.
-       fetchpriority="high" porque é o maior elemento da primeira tela. -->
   <img class="hero-v2__foto"
        src="assets/images/hero-banner.webp"
        alt="" width="1376" height="768"
@@ -131,7 +105,6 @@
   </div>
 </section>
 
-<!-- ============ MENU DA SEMANA ============ -->
 <section class="semana" aria-labelledby="tituloSemana">
   <div class="container">
     <h2 class="semana__titulo" id="tituloSemana">Menu da semana</h2>
@@ -152,7 +125,6 @@
   </div>
 </section>
 
-<!-- ============ HORÁRIOS E LOCALIZAÇÃO ============ -->
 <section class="horarios-sec" aria-labelledby="tituloHorarios">
   <div class="container">
     <div class="titulo-risco revelar">
@@ -163,7 +135,6 @@
       <div class="horarios-cols">
         <div class="bloco-info">
           <h3>Funcionamento</h3>
-          <!-- Preenchido por js/main.js a partir de BUSINESS_CONFIG.businessHours -->
           <div data-horarios><p class="dado-indisponivel">Consulte nossos horários pelo WhatsApp.</p></div>
           <p class="status-loja status-loja--bloco" data-status-loja hidden></p>
         </div>
@@ -179,11 +150,7 @@
         </div>
       </div>
 
-      <!-- Começa oculto: só aparece quando o JS confirma que há URL
-           válida. Sem isso, um JS que falhe deixaria uma moldura vazia. -->
       <figure class="mapa-card" data-some-sem-endereco hidden>
-        <!-- O src é montado por js/main.js a partir do endereço da config,
-             para não existir endereço escrito em dois lugares. -->
         <iframe data-mapa-embed title="Mapa da Buck's Burguer"
                 loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </figure>
@@ -191,13 +158,9 @@
   </div>
 </section>
 
-<!-- ============ RESERVAS ============ -->
 <section class="reservas" id="reservas" aria-labelledby="tituloReservas">
   <div class="container reservas__inner">
     <div class="colagem">
-      <!-- Cartaz da promoção. O texto está dentro da imagem, por isso
-           o alt descreve a oferta por inteiro para leitores de tela.
-           Para trocar a promoção é preciso trocar a imagem. -->
       <img class="colagem__cartaz"
            src="assets/images/noitedoDate.jpg"
            alt="Noite do Date, toda sexta-feira. Casal por R$ 99,99, mediante reserva."
@@ -218,9 +181,7 @@
   </div>
 </section>
 
-<!-- ============ DELIVERY ============ -->
 <section class="delivery" aria-labelledby="tituloDelivery">
-  <!-- IMAGEM DE FUNDO: parede de tijolo -> assets/images/hero-tijolo.jpg -->
   <div class="ph delivery__fundo ph--sem-borda"></div>
 
   <h2 class="sr-only" id="tituloDelivery">Nosso delivery</h2>
@@ -231,8 +192,6 @@
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       </div>
       <h3>Taxa de entrega</h3>
-      <!-- Texto definido por js/main.js: só promete frete grátis
-           quando as regras existirem em BUSINESS_CONFIG.delivery -->
       <p data-entrega-aviso>Consulte as condições e a taxa de entrega no atendimento.</p>
     </div>
 
@@ -255,15 +214,12 @@
 </section>
 </main>
 
-<!-- ============ RODAPÉ ============ -->
 <footer class="footer-v2">
   <div class="container">
     <div class="footer-v2__grade">
 
       <div>
         <h2 class="footer-v2__titulo">Contato</h2>
-        <!-- Preenchido por js/main.js a partir de js/config.js.
-             Dado não confirmado não vira link. -->
         <div class="footer-v2__contatos" data-contatos><p class="dado-indisponivel">Canais de contato carregando…</p></div>
       </div>
 
@@ -303,7 +259,6 @@
   </div>
 </footer>
 
-<!-- ============ CARRINHO ============ -->
 <div class="overlay" id="overlay"></div>
 <aside class="carrinho" id="carrinhoDrawer" aria-label="Carrinho de compras">
   <div class="carrinho__topo">
@@ -326,7 +281,6 @@
   </div>
 </aside>
 
-<!-- Ordem obrigatória: config -> regras -> componentes -> telas -->
 <script src="js/config.js?v=9"></script>
 <script src="js/loja.js?v=9"></script>
 <script src="js/modal.js?v=9"></script>

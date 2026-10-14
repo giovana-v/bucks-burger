@@ -1,43 +1,23 @@
-# ============================================================
-# Cloudflare Pages — cabeçalhos HTTP
-# ============================================================
-# Este arquivo é lido automaticamente pelo Cloudflare Pages.
-# A ordem importa: regras mais específicas depois das gerais.
-# ============================================================
-
 /*
-  # Impede o navegador de "adivinhar" o tipo do arquivo
   X-Content-Type-Options: nosniff
-  # O site só pode ser embutido em iframe pelo próprio domínio
   X-Frame-Options: SAMEORIGIN
-  # Não vaza a URL completa para sites externos
   Referrer-Policy: strict-origin-when-cross-origin
-  # O site não usa nenhuma dessas APIs
   Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
 
-# ---------- HTML: sempre revalida ----------
-# Assim uma correção aparece na próxima visita, sem esperar cache.
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
 /
   Cache-Control: public, max-age=0, must-revalidate
 
-# ---------- CSS e JS: cache curto ----------
-# O ?v=N das páginas é quem invalida de imediato quando você edita.
-# Uma hora é o bastante para aliviar o servidor sem prender versão
-# antiga caso você esqueça de incrementar o número.
 /css/*
   Cache-Control: public, max-age=3600
 
 /js/*
   Cache-Control: public, max-age=3600
 
-# ---------- Cardápio: cache bem curto ----------
-# Mudança de preço precisa chegar rápido ao cliente.
 /data/*
   Cache-Control: public, max-age=300
 
-# ---------- Imagens: cache longo ----------
 /assets/*
   Cache-Control: public, max-age=604800

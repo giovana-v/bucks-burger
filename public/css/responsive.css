@@ -1,11 +1,4 @@
-/* ============================================
-   BUCK'S BURGUER — RESPONSIVO
-   ============================================ */
 
-/* ---------- Até 1024px ---------- */
-/* Até 1360px o conteúdo encosta na borda e não há faixa livre para o
-   trilho social. O hero — e só ele — abre espaço à esquerda, mesma
-   técnica que já era usada no mobile. */
 @media (max-width: 1360px) {
   .hero-v2 .container { padding-left: 80px; }
 }
@@ -107,8 +100,6 @@
   .toast.visivel { transform: none; }
 
   .hero-v2 { min-height: 88vh; padding: calc(var(--header-h) + 36px) 0 120px; }
-  /* Em tela estreita o texto cobre a largura toda: o véu precisa
-     escurecer tudo, não só o lado esquerdo. */
   .hero-v2__veu {
     background:
       linear-gradient(180deg,
@@ -120,8 +111,6 @@
   .hero-v2__foto { object-position: 72% center; }
   .hero-v2__titulo { text-shadow: 3px 4px 0 rgba(197,31,40,.85); }
   .hero-v2__script { display: block; margin: 8px 0 0; }
-  /* Em tela estreita o texto ocupa a largura toda e as legendas
-     manuscritas colidiriam com o botão. */
   .hero-v2__nota { display: none; }
   .social-rail { left: 10px; gap: 8px; }
   .hero-v2 .container { padding-left: 54px; }
@@ -132,7 +121,6 @@
   .carrossel__trilho { grid-auto-columns: 78%; gap: 16px; }
 
   .horarios-cols { grid-template-columns: 1fr; gap: 24px; }
-  /* Empilhado, o fio vertical vira um fio horizontal */
   .bloco-info--divisor {
     padding: 22px 0 0;
     border-left: 0;
@@ -154,7 +142,7 @@
     max-width: 100vw;
     max-height: 100vh;
     margin: 0;
-    margin-top: auto;      /* diálogo sobe de baixo, padrão mobile */
+    margin-top: auto;
   }
   .dialogo__caixa,
   .dialogo .checkout {

@@ -1,14 +1,3 @@
-/* ============================================================
-   BUCK'S BURGUER — CARDÁPIO
-   ------------------------------------------------------------
-   Carrega data/produtos.json e renderiza cardápio, carrossel
-   da semana e página de produto.
-
-   Preços vêm em reais no JSON e são convertidos para centavos
-   (Loja.paraCentavos) antes de qualquer conta.
-   Texto vindo do JSON é escapado antes de entrar em innerHTML.
-   ============================================================ */
-
 const Cardapio = (() => {
   let dados = { produtos: [], categorias: [], adicionais: [] };
   let filtroAtual = 'todos';
@@ -17,12 +6,10 @@ const Cardapio = (() => {
   const moeda = (centavos) => Loja.formatarMoeda(centavos);
   const centavos = (p) => Loja.paraCentavos(p);
 
-  /** Escapa texto do catálogo antes de interpolar em HTML. */
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 
-  /* ---------- Carregamento ---------- */
   async function carregar() {
     try {
       const resp = await fetch('data/produtos.json');
@@ -42,14 +29,6 @@ const Cardapio = (() => {
 
   const acharProduto = (id) => dados.produtos.find(p => p.id === id);
 
-  /**
-   * Escreve um dos estados da região dinâmica.
-   * As regiões nascem com aria-busy="true" e "Carregando…" no HTML;
-   * aqui encerramos esse estado e dizemos o que aconteceu.
-   * @param {string} id          id do container
-   * @param {string} mensagem    texto do estado; '' apenas encerra o carregando
-   * @param {string} [acao]      HTML opcional de ação (ex.: botão tentar de novo)
-   */
   function definirEstado(id, mensagem, acao = '') {
     const alvo = document.getElementById(id);
     if (!alvo) return;
@@ -59,18 +38,15 @@ const Cardapio = (() => {
     }
   }
 
-  /* ---------- Alérgenos (fonte única: Loja.lerAlergenos) ---------- */
   function htmlAlergenos(produto, compacto = false) {
     const a = Loja.lerAlergenos(produto);
 
-    // Produto sem alérgenos cadastrados não gera bloco nenhum.
     if (!a.informado) return '';
 
     const classe = a.informado
       ? (a.lista.length ? 'alergenos--contem' : 'alergenos--limpo')
       : 'alergenos--desconhecido';
 
-    // O ícone acompanha o texto: a informação nunca depende só da cor.
     const icone = a.informado && !a.lista.length ? '✓' : 'ⓘ';
 
     const cruzada = a.contaminacaoCruzada && !compacto
@@ -88,7 +64,6 @@ const Cardapio = (() => {
       </div>`;
   }
 
-  /* ---------- Card de produto ---------- */
   function templateCard(p) {
     const preco = centavos(p.preco);
     const tag = p.tag
@@ -99,7 +74,6 @@ const Cardapio = (() => {
       <article class="card" data-categoria="${esc(p.categoria)}">
         <a class="card__midia" href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
           ${tag}
-          <!-- IMAGEM DO PRODUTO: ${esc(p.imagem)} -->
           <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
         </a>
         <div class="card__corpo">
@@ -120,7 +94,6 @@ const Cardapio = (() => {
       </article>`;
   }
 
-  /* ---------- Grade do cardápio ---------- */
   function filtrar() {
     const termo = termoBusca.toLowerCase().trim();
     return dados.produtos.filter(p => {
@@ -138,8 +111,6 @@ const Cardapio = (() => {
 
     grade.setAttribute('aria-busy', 'false');
 
-    // Catálogo vazio e busca sem resultado são situações diferentes:
-    // a primeira é problema da loja, a segunda é do filtro.
     if (!dados.produtos.length) {
       grade.innerHTML = '<p class="estado-vazio">Nenhum produto disponível no momento.</p>';
       const contadorVazio = document.getElementById('contadorProdutos');
@@ -156,7 +127,6 @@ const Cardapio = (() => {
     if (contador) contador.textContent = `${lista.length} ${lista.length === 1 ? 'item' : 'itens'}`;
   }
 
-  /* ---------- Carrossel da semana ---------- */
   const DIAS = ['Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 
   function renderizarSemana() {
@@ -177,7 +147,6 @@ const Cardapio = (() => {
         <span class="dia__rotulo">${DIAS[i]}</span>
         <div class="dia__card">
           <a href="/produto?id=${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
-            <!-- IMAGEM DO PRODUTO: ${esc(p.imagem)} -->
             <div class="ph" data-label="Foto&#10;${esc(p.nome)}"></div>
           </a>
           <h3 class="dia__nome">${esc(p.nome)}</h3>
@@ -192,7 +161,6 @@ const Cardapio = (() => {
     document.dispatchEvent(new CustomEvent('carrossel:pronto'));
   }
 
-  /* ---------- Filtros e busca ---------- */
   function renderizarFiltros() {
     const box = document.getElementById('filtros');
     if (!box) return;
@@ -230,7 +198,6 @@ const Cardapio = (() => {
     });
   }
 
-  /* ---------- Página de produto ---------- */
   function renderizarProduto() {
     const box = document.getElementById('produtoDetalhe');
     if (!box) return;
@@ -240,7 +207,6 @@ const Cardapio = (() => {
     const parametro = new URLSearchParams(location.search).get('id');
     const p = acharProduto(Number(parametro));
 
-    // Sem id válido não mostramos outro produto no lugar
     if (!p) {
       box.innerHTML = `
         <div class="estado-vazio estado-vazio--pagina">
@@ -268,9 +234,6 @@ const Cardapio = (() => {
 
     box.innerHTML = `
       <div class="produto__galeria">
-        <!-- A foto principal é um <img> de verdade: as miniaturas trocam
-             o src/alt. Se o arquivo não existir, o onerror revela o
-             placeholder que fica atrás. -->
         <div class="ph produto__principal" data-label="Foto principal&#10;${esc(p.nome)}">
           <img id="produtoImagem" class="produto__foto" src="${esc(p.imagem)}"
                alt="${esc(p.nome)}" loading="lazy" decoding="async"
@@ -278,7 +241,6 @@ const Cardapio = (() => {
         </div>
         <div class="produto__miniaturas" role="group" aria-label="Fotos do produto">
           ${miniaturas.slice(0, 4).map((img, i) => `
-            <!-- MINIATURA ${i + 1}: ${esc(img)} -->
             <button type="button" class="ph miniatura ${i === 0 ? 'ativa' : ''}"
                     data-foto="${esc(img)}" data-label="${i + 1}"
                     aria-label="Ver foto ${i + 1}" aria-pressed="${i === 0}"></button>`).join('')}
@@ -391,7 +353,6 @@ const Cardapio = (() => {
       Carrinho.abrir();
     });
 
-    // Miniaturas trocam a foto principal de verdade
     const principal = document.getElementById('produtoImagem');
     document.querySelectorAll('.produto__miniaturas .miniatura').forEach((mini, indice) => {
       mini.addEventListener('click', () => {
@@ -405,7 +366,7 @@ const Cardapio = (() => {
         const foto = mini.dataset.foto;
         if (!foto || !principal) return;
 
-        principal.hidden = false;          // pode ter sido escondida por erro
+        principal.hidden = false;
         principal.src = foto;
         principal.alt = `${p.nome} — foto ${indice + 1}`;
       });
@@ -421,10 +382,6 @@ const Cardapio = (() => {
     grade.innerHTML = lista.map(templateCard).join('');
   }
 
-  /* ============================================================
-     MODAL DE PERSONALIZAÇÃO RÁPIDA (botão "+")
-     Permite observação e quantidade sem abrir o carrinho.
-     ============================================================ */
   let dialogRapido = null;
   let produtoAtual = null;
 
@@ -512,7 +469,6 @@ const Cardapio = (() => {
     montarModalRapido();
     produtoAtual = produto;
 
-    // textContent: dado do catálogo entra como texto, nunca como HTML
     dialogRapido.querySelector('#modalProdutoTitulo').textContent = produto.nome;
     dialogRapido.querySelector('#modalProdutoDesc').textContent = produto.descricao;
     dialogRapido.querySelector('#modalProdutoAlergenos').innerHTML = htmlAlergenos(produto);
@@ -524,7 +480,6 @@ const Cardapio = (() => {
     Modal.abrir(dialogRapido, { gatilho, focoInicial: '#modalObs' });
   }
 
-  /* ---------- Botão "+" de qualquer card ---------- */
   function ligarBotoesAdd() {
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.card__add');
@@ -535,12 +490,9 @@ const Cardapio = (() => {
     });
   }
 
-  /* ---------- Boot ---------- */
   async function iniciar() {
     if (!(await carregar())) return;
 
-    // O carrinho guarda o preço do momento da adição. Assim que o
-    // catálogo chega, ele vira a fonte de verdade.
     Carrinho.revalidarComCatalogo(dados.produtos);
 
     renderizarSemana();

@@ -13,6 +13,9 @@ desktop.ini
 node_modules/
 package-lock.json
 
+# Estado local do Wrangler
+.wrangler/
+
 # Logs e temporários
 *.log
 .cache/

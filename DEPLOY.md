@@ -38,8 +38,8 @@ ou `npx wrangler logout`.
 3. Autorize o GitHub e escolha **`giovana-v/bucks-burger`**
    (funciona com repositório privado, sem custo)
 
-> **O site fica em `public/`.** A pasta publicada é só ela, então `.git`,
-> `tests/` e a documentação estão fisicamente fora e não há como vazá-los.
+> **O site fica em `public/`.** A pasta publicada é só ela, então `.git`
+> e a documentação estão fisicamente fora e não há como vazá-los.
 >
 > Isso é corretivo: o primeiro deploy publicava a raiz do repositório e
 > deixou `https://SEU-SITE/.git/config` acessível — o histórico completo
@@ -118,8 +118,8 @@ sed -i 's|SEU-DOMINIO|seudominio.com.br|g' *.html sitemap.xml robots.txt
   `produtos.json` tem 5 minutos para mudança de preço chegar rápido,
   imagens têm 7 dias.
 - **`404.html`** — o Cloudflare Pages usa automaticamente.
-- **`robots.txt`** — libera as páginas públicas, mantém CSS/JS
-  acessíveis ao Google e tira `/tests/` do índice.
+- **`robots.txt`** — libera as páginas públicas e mantém CSS/JS
+  acessíveis ao Google.
 
 ## Atenção ao publicar
 

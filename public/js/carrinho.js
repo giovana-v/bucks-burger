@@ -1,21 +1,7 @@
-/* ============================================================
-   BUCK'S BURGUER — CARRINHO
-   ------------------------------------------------------------
-   Estado dos itens + drawer lateral.
-   Todo cálculo é delegado a js/loja.js: aqui só há interface.
-   Valores em CENTAVOS INTEIROS.
-
-   Conteúdo digitado pelo cliente (observação) nunca entra por
-   innerHTML — é sempre inserido com textContent.
-   ============================================================ */
-
 const Carrinho = (() => {
   const CHAVE = 'bucks:carrinho:v2';
   let itens = [];
 
-  /* ---------- Persistência ----------
-     Guardamos apenas o pedido em montagem (produto, quantidade,
-     observação). Dados pessoais do checkout NÃO são persistidos.  */
   function carregar() {
     try {
       const bruto = JSON.parse(localStorage.getItem(CHAVE));
@@ -28,10 +14,9 @@ const Carrinho = (() => {
   function salvar() {
     try {
       localStorage.setItem(CHAVE, JSON.stringify(itens));
-    } catch (e) { /* modo privado ou storage cheio: segue sem persistir */ }
+    } catch (e) { }
   }
 
-  /** Aceita itens salvos por versões antigas (preço em reais). */
   function normalizarItem(item) {
     if (!item || item.id === undefined) return null;
     const precoCentavos = Number.isFinite(item.precoCentavos)
@@ -55,15 +40,6 @@ const Carrinho = (() => {
     };
   }
 
-  /**
-   * Reconfere os itens salvos contra o catálogo atual.
-   * O localStorage guarda o preço do momento em que o item entrou;
-   * sem isso, um carrinho antigo enviaria preço desatualizado ao
-   * WhatsApp. O catálogo é a fonte de verdade.
-   *
-   * @param {Array} produtos lista de data/produtos.json
-   * @returns {{ atualizados: number, removidos: Array<string> }}
-   */
   function revalidarComCatalogo(produtos) {
     if (!Array.isArray(produtos) || !produtos.length) return { atualizados: 0, removidos: [] };
 
@@ -71,10 +47,9 @@ const Carrinho = (() => {
     let atualizados = 0;
     const removidos = [];
 
-    // Percorre de trás para frente porque podemos remover itens
     for (let i = itens.length - 1; i >= 0; i--) {
       const item = itens[i];
-      const produto = porId.get(item.id);   // id estável, nunca o nome
+      const produto = porId.get(item.id);
 
       if (!produto) {
         removidos.push(item.nome);
@@ -87,7 +62,6 @@ const Carrinho = (() => {
         item.precoCentavos = atual;
         atualizados++;
       }
-      // O nome também pode ter mudado no catálogo
       if (produto.nome && produto.nome !== item.nome) item.nome = produto.nome;
       if (produto.imagem) item.imagem = produto.imagem;
     }
@@ -110,7 +84,6 @@ const Carrinho = (() => {
     return { atualizados, removidos };
   }
 
-  /* ---------- Operações ---------- */
   function adicionar(produto, qtd = 1, adicionais = [], obs = '') {
     const novo = normalizarItem({ ...produto, qtd, adicionais, obs });
     if (!novo) return;
@@ -124,10 +97,6 @@ const Carrinho = (() => {
     toast(`${novo.nome} adicionado ao carrinho`);
   }
 
-  /**
-   * Antes de mexer na lista, grava o que estiver digitado no textarea
-   * daquele item — senão o redraw descartaria o texto não salvo.
-   */
   function capturarObsPendente(indice) {
     const lista = document.getElementById('carrinhoLista');
     const campo = lista?.children[indice]?.querySelector('.obs-inline__campo');
@@ -138,7 +107,6 @@ const Carrinho = (() => {
     if (nova !== item.obs) item.obs = nova;
   }
 
-  /** A observação é preservada: só a quantidade muda. */
   function alterarQtd(indice, delta) {
     capturarObsPendente(indice);
     const item = itens[indice];
@@ -152,20 +120,6 @@ const Carrinho = (() => {
     renderizar();
   }
 
-  /**
-   * Grava a observação.
-   *
-   * IMPORTANTE: NÃO redesenha a lista no caso comum. O gatilho desta
-   * função é o blur do textarea, que dispara no mousedown do botão de
-   * quantidade/remover. Se a lista fosse redesenhada aqui, o botão
-   * deixaria de existir entre o mousedown e o mouseup e o clique se
-   * perderia — a cliente precisava clicar duas vezes.
-   *
-   * A consolidação de itens que ficaram idênticos é feita por
-   * fundirDuplicados, no próximo redraw natural.
-   *
-   * @returns {boolean} sempre false — esta função não redesenha a lista
-   */
   function definirObs(indice, texto) {
     const item = itens[indice];
     if (!item) return false;
@@ -176,20 +130,10 @@ const Carrinho = (() => {
     item.obs = nova;
     salvar();
 
-    // Atualiza só o preço deste item; os botões continuam os mesmos
-    // elementos, então o clique que causou o blur segue válido.
-    // Se a observação tornou este item igual a outro, a fusão acontece
-    // no próximo redraw natural (fundirDuplicados dentro de renderizar).
     atualizarItemNaTela(indice);
     return false;
   }
 
-  /**
-   * Funde itens que passaram a ter a mesma chave (mesmo produto, mesmos
-   * adicionais e mesma observação). Roda no início de renderizar, que é
-   * um momento em que a lista já vai ser reconstruída de qualquer forma.
-   * @returns {boolean} true se algo foi fundido
-   */
   function fundirDuplicados() {
     const porChave = new Map();
     let mudou = false;
@@ -209,7 +153,6 @@ const Carrinho = (() => {
     return mudou;
   }
 
-  /** Redesenha apenas o preço de um item, sem recriar os botões. */
   function atualizarItemNaTela(indice) {
     const lista = document.getElementById('carrinhoLista');
     const raiz = lista?.children[indice];
@@ -234,10 +177,9 @@ const Carrinho = (() => {
   function limpar() {
     itens = [];
     salvar();
-    renderizar();       // já atualiza lista, resumo, contador e bloqueios
+    renderizar();
   }
 
-  /** Esvaziar com confirmação. Reutiliza limpar(), sem duplicar lógica. */
   function limparComConfirmacao() {
     if (vazio()) return;
     const qtd = quantidade();
@@ -254,10 +196,7 @@ const Carrinho = (() => {
   const quantidade = () => itens.reduce((s, i) => s + i.qtd, 0);
   const vazio = () => itens.length === 0;
 
-  /* ---------- Render ---------- */
   function renderizar() {
-    // Momento seguro para consolidar itens que ficaram idênticos:
-    // a lista vai ser reconstruída logo abaixo de qualquer jeito.
     if (fundirDuplicados()) salvar();
 
     const lista = document.getElementById('carrinhoLista');
@@ -284,7 +223,6 @@ const Carrinho = (() => {
     itens.forEach((item, i) => lista.appendChild(montarItem(item, i)));
   }
 
-  /** Monta um item do carrinho via DOM (sem innerHTML). */
   function montarItem(item, i) {
     const raiz = document.createElement('div');
     raiz.className = 'item-carrinho';
@@ -296,7 +234,7 @@ const Carrinho = (() => {
 
     const nome = document.createElement('p');
     nome.className = 'item-carrinho__nome';
-    nome.textContent = item.nome;                 // textContent: nunca interpreta HTML
+    nome.textContent = item.nome;
     corpo.appendChild(nome);
 
     if (item.adicionais.length) {
@@ -311,7 +249,6 @@ const Carrinho = (() => {
     preco.textContent = Loja.formatarMoeda(Loja.precoItem(item));
     corpo.appendChild(preco);
 
-    // Quantidade
     const qtdBox = document.createElement('div');
     qtdBox.className = 'item-carrinho__qtd';
     qtdBox.append(
@@ -331,11 +268,6 @@ const Carrinho = (() => {
     return raiz;
   }
 
-  /**
-   * Foto do item. Usa item.imagem quando existir; se o arquivo falhar
-   * ao carregar, cai para o mesmo placeholder de antes, então produtos
-   * sem foto continuam funcionando.
-   */
   function montarFoto(item) {
     const placeholder = () => {
       const div = document.createElement('div');
@@ -352,17 +284,15 @@ const Carrinho = (() => {
     img.src = item.imagem;
     img.alt = item.nome;
     img.width = 68;
-    img.height = 68;      // dimensões declaradas evitam o layout pular
+    img.height = 68;
     img.loading = 'lazy';
     img.decoding = 'async';
 
-    // Arquivo ausente ou quebrado: troca pelo placeholder
     img.addEventListener('error', () => img.replaceWith(placeholder()), { once: true });
 
     return img;
   }
 
-  /** Campo de observação inline — substitui o antigo prompt(). */
   function montarObs(item, i) {
     const box = document.createElement('div');
     box.className = 'obs-inline';
@@ -379,7 +309,7 @@ const Carrinho = (() => {
     campo.rows = 2;
     campo.maxLength = Loja.LIMITE_OBS;
     campo.placeholder = 'Ex.: sem cebola — alergia a castanhas';
-    campo.value = item.obs;                       // .value: também não interpreta HTML
+    campo.value = item.obs;
     campo.dataset.i = String(i);
 
     const rodape = document.createElement('div');
@@ -403,11 +333,8 @@ const Carrinho = (() => {
       atualizarContador();
       salvarBtn.hidden = Loja.normalizarObs(campo.value) === item.obs;
     });
-    // Salva ao sair do campo e pelo botão — a cliente escolhe.
-    // definirObs não redesenha a lista, então o clique que causou o
-    // blur continua valendo.
     campo.addEventListener('blur', () => definirObs(i, campo.value));
-    salvarBtn.addEventListener('mousedown', (e) => e.preventDefault()); // não perder o blur
+    salvarBtn.addEventListener('mousedown', (e) => e.preventDefault());
     salvarBtn.addEventListener('click', () => definirObs(i, campo.value));
 
     rodape.append(contador, salvarBtn);
@@ -431,8 +358,6 @@ const Carrinho = (() => {
     return el;
   }
 
-  /* ---------- Resumo de valores ----------
-     Mesma função de cálculo usada pelo checkout e pela mensagem. */
   function renderizarResumo() {
     const box = document.getElementById('carrinhoResumo');
     const finalizar = document.getElementById('carrinhoFinalizar');
@@ -460,7 +385,6 @@ const Carrinho = (() => {
     total.classList.add('resumo__linha--total');
     box.appendChild(total);
 
-    // Bloqueios
     const bloqueios = [];
     if (vazio()) bloqueios.push('Adicione ao menos um item.');
     if (!estado.aberto) {
@@ -490,7 +414,6 @@ const Carrinho = (() => {
     return linha;
   }
 
-  /* ---------- Drawer ---------- */
   function abrir() {
     const drawer = document.getElementById('carrinhoDrawer');
     if (!drawer) return;
@@ -505,7 +428,6 @@ const Carrinho = (() => {
   function fechar() {
     const drawer = document.getElementById('carrinhoDrawer');
     if (!drawer) return;
-    // inert impede que o Tab entre no painel fechado
     drawer.classList.remove('aberto');
     drawer.setAttribute('inert', '');
     drawer.setAttribute('aria-hidden', 'true');
@@ -516,7 +438,6 @@ const Carrinho = (() => {
 
   const estaAberto = () => document.getElementById('carrinhoDrawer')?.classList.contains('aberto');
 
-  /* ---------- Toast ---------- */
   let toastTimer;
   function toast(msg) {
     let el = document.getElementById('toast');
@@ -534,7 +455,6 @@ const Carrinho = (() => {
     toastTimer = setTimeout(() => el.classList.remove('visivel'), 2800);
   }
 
-  /* ---------- Eventos ---------- */
   function iniciar() {
     carregar();
 
@@ -564,7 +484,6 @@ const Carrinho = (() => {
       if (e.key === 'Escape' && estaAberto()) fechar();
     });
 
-    // Revalida o bloqueio por horário de tempos em tempos
     setInterval(renderizarResumo, 60000);
   }
 

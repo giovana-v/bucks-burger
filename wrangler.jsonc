@@ -1,10 +1,4 @@
 {
-  // Configuração do deploy no Cloudflare.
-  //
-  // O site inteiro fica em public/. Isso é deliberado: a pasta publicada
-  // não contém .git, tests nem documentação, então não existe como
-  // vazá-los por engano — que foi o que aconteceu no primeiro deploy,
-  // quando a pasta publicada era a raiz do repositório.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "bucks-burger",
   "compatibility_date": "2026-09-16",
@@ -13,9 +7,6 @@
   },
   "assets": {
     "directory": "./public",
-
-    // Sem isto, uma URL inexistente devolve um 404 em branco.
-    // Com "404-page", o visitante cai no nosso public/404.html.
     "not_found_handling": "404-page"
   }
 }
